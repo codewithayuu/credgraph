@@ -43,6 +43,29 @@ export const Navbar: React.FC = () => {
     ? "bg-void/65 backdrop-blur-2xl border-b border-white/5"
     : "bg-transparent";
 
+  if (pathname === "/" || pathname.startsWith("/verify")) {
+    return null;
+  }
+
+  let currentLinks: { href: string; label: string }[] = [];
+  if (pathname.startsWith("/issuer")) {
+    currentLinks = [
+      { href: "/issuer", label: "Dashboard" },
+      { href: "/issuer#manage", label: "Manage" },
+      { href: "/issuer#issue", label: "Issue" },
+    ];
+  } else if (pathname.startsWith("/student")) {
+    currentLinks = [
+      { href: "/student", label: "My Wallet" },
+      { href: "/student#share", label: "Share Profile" },
+    ];
+  } else {
+    currentLinks = [
+      { href: "/developers", label: "Developers" },
+      { href: "/governance", label: "Governance" },
+    ];
+  }
+
   return (
     <>
       <nav className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300", navBg)}>
@@ -65,10 +88,10 @@ export const Navbar: React.FC = () => {
 
             {/* Desktop nav */}
             <div className="hidden lg:flex items-center gap-1">
-              {links.map((link) => {
-                const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+              {currentLinks.map((link) => {
+                const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href) && !link.href.includes("#"));
                 return (
-                  <Link key={link.href} href={link.href} className="relative">
+                  <Link key={link.href + link.label} href={link.href} className="relative">
                     <div
                       className={cn(
                         "relative px-4 py-2 rounded-xl text-b3 font-medium transition-colors",
@@ -187,10 +210,10 @@ export const Navbar: React.FC = () => {
               </div>
 
               <div className="p-4 space-y-1.5">
-                {links.map((link) => {
-                  const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                {currentLinks.map((link) => {
+                  const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href) && !link.href.includes("#"));
                   return (
-                    <Link key={link.href} href={link.href}>
+                    <Link key={link.href + link.label} href={link.href}>
                       <div
                         className={cn(
                           "px-4 py-3 rounded-2xl text-b2 font-medium transition-[background-color,border-color,color] duration-200 border",
