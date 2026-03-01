@@ -24,7 +24,7 @@ export default function DemoPortalPage() {
             <BrandLogo size={64} />
           </div>
           <h1 className="text-display text-5xl sm:text-6xl md:text-7xl font-bold text-white tracking-tight mb-4">
-            Cred<span className="text-gradient-gold">Graph</span> Demo
+            Cred<span className="text-gradient-gold">Graph</span>
           </h1>
           <p className="text-xl text-surface-400 max-w-2xl mx-auto">
             Choose a persona to explore the trustless credential issuance and verification protocol.
