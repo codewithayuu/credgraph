@@ -71,7 +71,7 @@ export function buildCreateAsaTxn(
   note?: Uint8Array
 ): algosdk.Transaction {
   return algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
-    from: sender,
+    sender: sender,
     total: ASA_CONFIG.totalSupply,
     decimals: ASA_CONFIG.decimals,
     defaultFrozen: false,
