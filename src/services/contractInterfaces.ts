@@ -32,7 +32,7 @@ export async function buildIssuerRegistryCall(
   const params = await getSuggestedParams();
 
   const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-    from: sender,
+    sender: sender,
     appIndex: CONTRACT_IDS.issuerRegistry,
     onComplete: algosdk.OnApplicationComplete.NoOpOC,
     appArgs: [
@@ -54,7 +54,7 @@ export async function buildCredentialRegistryCall(
   const params = await getSuggestedParams();
 
   const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-    from: sender,
+    sender: sender,
     appIndex: CONTRACT_IDS.credentialRegistry,
     onComplete: algosdk.OnApplicationComplete.NoOpOC,
     appArgs: [
@@ -76,7 +76,7 @@ export async function buildCompositionRegistryCall(
   const params = await getSuggestedParams();
 
   const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-    from: sender,
+    sender: sender,
     appIndex: CONTRACT_IDS.compositionRules,
     onComplete: algosdk.OnApplicationComplete.NoOpOC,
     appArgs: [
@@ -95,7 +95,7 @@ export async function readGlobalState(appId: number): Promise<Record<string, any
   try {
     const client = getAlgodClient();
     const appInfo = await client.getApplicationByID(appId).do();
-    const globalState = appInfo.params["global-state"] || [];
+    const globalState = appInfo.params.globalState || [];
 
     const decoded: Record<string, any> = {};
     globalState.forEach((item: any) => {
