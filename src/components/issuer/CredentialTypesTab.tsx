@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Modal } from "@/components/ui/Modal";
 import { CreateCredentialTypeForm } from "./CreateCredentialTypeForm";
-import { CREDENTIAL_CATEGORIES, CREDENTIAL_TIERS } from "@/lib/constants";
+import { CATEGORY_MAP, TIER_MAP } from "@/lib/constants";
 import { formatTimestamp } from "@/lib/utils";
 import {
   Plus,
@@ -65,8 +65,8 @@ export const CredentialTypesTab: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {types.map((type, i) => {
-            const catConfig = CREDENTIAL_CATEGORIES[type.category];
-            const tierConfig = CREDENTIAL_TIERS[type.tier];
+            const catConfig = CATEGORY_MAP[type.category];
+            const tierConfig = TIER_MAP[type.tier];
             return (
               <motion.div
                 key={type.id}
@@ -86,7 +86,7 @@ export const CredentialTypesTab: React.FC = () => {
                       </div>
                     </div>
                     <Badge
-                      variant={type.status === "active" ? "success" : "default"}
+                      variant={type.status === "active" ? "neon" : "default"}
                       size="sm"
                       dot
                     >
@@ -99,14 +99,14 @@ export const CredentialTypesTab: React.FC = () => {
                   </p>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="info" size="sm" icon={<Tag className="w-3 h-3" />}>
+                    <Badge variant="azure" size="sm" icon={<Tag className="w-3 h-3" />}>
                       {catConfig?.label || type.category}
                     </Badge>
-                    <Badge variant="brand" size="sm" icon={<Layers className="w-3 h-3" />}>
+                    <Badge variant="gold" size="sm" icon={<Layers className="w-3 h-3" />}>
                       {tierConfig?.label || type.tier}
                     </Badge>
                     {type.evidenceRequired && (
-                      <Badge variant="warning" size="sm" icon={<FileCheck className="w-3 h-3" />}>
+                      <Badge variant="electric" size="sm" icon={<FileCheck className="w-3 h-3" />}>
                         Evidence Required
                       </Badge>
                     )}

@@ -79,7 +79,7 @@ export const SkillPathsTab: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
               >
-                <Card variant="highlight" padding="md">
+                <Card variant="highlighted" padding="md">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/15">
@@ -91,11 +91,11 @@ export const SkillPathsTab: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="success" size="sm" dot>
+                      <Badge variant="neon" size="sm" dot>
                         {rule.status}
                       </Badge>
                       {rule.autoIssue && (
-                        <Badge variant="brand" size="sm">
+                        <Badge variant="gold" size="sm">
                           Auto-Issue
                         </Badge>
                       )}

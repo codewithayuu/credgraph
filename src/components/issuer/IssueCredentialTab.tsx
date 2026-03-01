@@ -143,7 +143,7 @@ export const IssueCredentialTab: React.FC = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Card variant="gradient" padding="lg" className="max-w-2xl mx-auto text-center">
+        <Card variant="golden" padding="lg" className="max-w-2xl mx-auto text-center">
           <div className="w-16 h-16 rounded-2xl bg-accent-500/15 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-8 h-8 text-accent-400" />
           </div>
@@ -166,7 +166,7 @@ export const IssueCredentialTab: React.FC = () => {
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-dark-800/40 border border-dark-700/30">
               <span className="text-body-sm text-dark-400">Status</span>
-              <Badge variant="success" dot pulse>Active</Badge>
+              <Badge variant="neon" dot pulse>Active</Badge>
             </div>
           </div>
 
@@ -199,7 +199,7 @@ export const IssueCredentialTab: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Card variant="highlight" padding="lg">
+      <Card variant="highlighted" padding="lg">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-cyber-500 flex items-center justify-center text-white">
             <Send className="w-5 h-5" />

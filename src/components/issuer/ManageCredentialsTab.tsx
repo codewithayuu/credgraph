@@ -72,7 +72,7 @@ export const ManageCredentialsTab: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.08 }}
             >
-              <Card variant="glass" padding="md">
+              <Card variant="elevated" padding="md">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -99,10 +99,10 @@ export const ManageCredentialsTab: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="info" size="sm">{cred.category}</Badge>
-                      <Badge variant="brand" size="sm">{cred.tier}</Badge>
+                      <Badge variant="azure" size="sm">{cred.category}</Badge>
+                      <Badge variant="gold" size="sm">{cred.tier}</Badge>
                       <Badge
-                        variant={cred.status === "active" ? "success" : "danger"}
+                        variant={cred.status === "active" ? "neon" : "crimson"}
                         size="sm"
                         dot
                       >
