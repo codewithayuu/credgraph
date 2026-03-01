@@ -77,13 +77,13 @@ export async function issueCredentialOnChain(
 
     const client = getAlgodClient();
     const response = await client.sendRawTransaction(signedTxns[0]).do();
-    const txId = response.txId;
+    const txId = response.txid;
 
     const confirmedTxn = await import("algosdk").then((sdk) =>
       sdk.default.waitForConfirmation(client, txId, 4)
     );
 
-    const asaId = confirmedTxn.assetIndex;
+    const asaId = Number(confirmedTxn.assetIndex);
 
     return {
       success: true,

@@ -125,7 +125,7 @@ export function groupTransactions(txns: algosdk.Transaction[]): algosdk.Transact
 export async function submitSignedTransactions(signedTxns: Uint8Array[]) {
   const client = getAlgodClient();
   const response = await client.sendRawTransaction(signedTxns).do();
-  const txId = response.txId;
+  const txId = response.txid;
   const result = await algosdk.waitForConfirmation(client, txId, 4);
   return { txId, ...result };
 }

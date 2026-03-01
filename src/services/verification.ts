@@ -103,7 +103,7 @@ export async function verifyOnChain(walletAddress: string) {
       if (!a.info) return false;
       const params = a.info.params;
       return (
-        params["unit-name"] === "CRED" ||
+        params.unitName === "CRED" ||
         (params.name && params.name.startsWith("CG:"))
       );
     });
