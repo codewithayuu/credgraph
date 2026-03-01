@@ -94,7 +94,7 @@ export default function DemoPortalPage() {
               </div>
               <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-neon-400 transition-colors">The Verifier</h2>
               <p className="text-surface-400 leading-relaxed text-sm">
-                Act as a hiring platform like DevPaglu. Instantly perform a trustless verification check on a candidate's credentials using cryptographic proofs, completely removing the need for manual background checks.
+                Act as a hiring platform like DevPaglu. Instantly perform a trustless verification check on a candidate&apos;s credentials using cryptographic proofs, completely removing the need for manual background checks.
               </p>
             </motion.div>
           </Link>
