@@ -7,98 +7,53 @@ import { motion } from "framer-motion";
 interface CardProps {
   children: React.ReactNode;
   className?: string;
-  variant?: "default" | "glass" | "highlight" | "gradient" | "interactive";
-  padding?: "none" | "sm" | "md" | "lg";
+  variant?: "default" | "elevated" | "highlighted" | "golden" | "interactive";
+  padding?: "none" | "sm" | "md" | "lg" | "xl";
   hover?: boolean;
   onClick?: () => void;
 }
 
-const paddingSizes = {
-  none: "",
-  sm: "p-4",
-  md: "p-6",
-  lg: "p-8",
-};
+const paddings = { none: "", sm: "p-4", md: "p-6", lg: "p-8", xl: "p-10" };
 
-const variantStyles = {
-  default: "bg-dark-900/60 border border-dark-700/50",
-  glass: "glass",
-  highlight: "glass card-highlight",
-  gradient: "gradient-border glass",
-  interactive: "glass cursor-pointer",
+const variants = {
+  default: "panel",
+  elevated: "panel-elevated",
+  highlighted: "panel relative highlight-line-top",
+  golden: "panel-solid border-gold-500/10 relative overflow-hidden",
+  interactive: "panel cursor-pointer",
 };
 
 export const Card: React.FC<CardProps> = ({
-  children,
-  className,
-  variant = "default",
-  padding = "md",
-  hover = false,
-  onClick,
+  children, className, variant = "default", padding = "md", hover = false, onClick,
 }) => {
   return (
     <motion.div
-      whileHover={
-        hover || variant === "interactive"
-          ? { y: -4, transition: { duration: 0.3 } }
-          : undefined
-      }
+      whileHover={hover || variant === "interactive" ? { y: -3, transition: { duration: 0.25 } } : undefined}
       className={cn(
-        "rounded-2xl backdrop-blur-xl transition-all duration-500",
-        variantStyles[variant],
-        paddingSizes[padding],
-        (hover || variant === "interactive") &&
-          "hover:shadow-glow hover:border-brand-500/30 cursor-pointer",
+        "rounded-2xl transition-all duration-400",
+        variants[variant],
+        paddings[padding],
+        (hover || variant === "interactive") && "hover:shadow-card-hover hover:border-gold-500/15 cursor-pointer",
         className
       )}
       onClick={onClick}
     >
-      {children}
+      {variant === "golden" && (
+        <div className="absolute top-0 right-0 w-48 h-48 orb orb-gold opacity-40 -translate-y-1/2 translate-x-1/4" />
+      )}
+      <div className="relative z-10">{children}</div>
     </motion.div>
   );
 };
 
-// Card Header
-export const CardHeader: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => (
-  <div className={cn("mb-4", className)}>{children}</div>
+export const CardHeader: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
+  <div className={cn("mb-5", className)}>{children}</div>
 );
 
-// Card Title
-export const CardTitle: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-  as?: "h1" | "h2" | "h3" | "h4";
-}> = ({ children, className, as: Tag = "h3" }) => (
-  <Tag className={cn("text-heading-lg font-bold text-dark-50", className)}>
-    {children}
-  </Tag>
+export const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
+  <h3 className={cn("text-h2 text-white", className)}>{children}</h3>
 );
 
-// Card Description
-export const CardDescription: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => (
-  <p className={cn("text-body-md text-dark-400 mt-1", className)}>{children}</p>
-);
-
-// Card Content
-export const CardContent: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => (
-  <div className={cn("", className)}>{children}</div>
-);
-
-// Card Footer
-export const CardFooter: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => (
-  <div className={cn("mt-6 pt-4 border-t border-dark-700/50 flex items-center gap-3", className)}>
-    {children}
-  </div>
+export const CardDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
+  <p className={cn("text-b2 text-surface-400 mt-1.5", className)}>{children}</p>
 );
