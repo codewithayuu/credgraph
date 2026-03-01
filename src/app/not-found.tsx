@@ -4,45 +4,46 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { GlowOrb } from "@/components/ui/GlowOrb";
-import { Home, Search, Hexagon } from "lucide-react";
+import { Home, Search } from "lucide-react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
 export default function NotFound() {
   return (
-    <div className="page-container relative flex items-center justify-center min-h-[80vh]">
-      <GlowOrb color="brand" size="lg" className="top-[20%] left-[30%] opacity-20" />
-
-      <div className="absolute inset-0 grid-pattern opacity-30" />
+    <div className="section-wrapper relative flex flex-col items-center justify-center min-h-[85vh] text-center">
+      <div className="orb orb-gold w-[400px] h-[400px] top-[20%] left-[30%] opacity-10" />
+      <div className="absolute inset-0 dot-bg opacity-30" />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-10 max-w-lg w-full mx-4 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 max-w-lg w-full px-6"
       >
-        <motion.div
-          animate={{ rotate: [0, 10, -10, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-dark-800/60 border border-dark-700/50 mb-8"
-        >
-          <Hexagon className="w-10 h-10 text-dark-500" />
-        </motion.div>
+        <div className="inline-flex items-center justify-center mb-10">
+          <motion.div
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          >
+            <BrandLogo size={120} />
+          </motion.div>
+        </div>
 
-        <h1 className="text-display-md font-black text-white mb-2">404</h1>
-        <p className="text-heading-md text-dark-400 mb-2">Page Not Found</p>
-        <p className="text-body-md text-dark-500 mb-8">
-          The page you are looking for does not exist or has been moved.
+        <h1 className="text-d2 font-display text-white mb-2 leading-none">404</h1>
+        <p className="text-h2 font-display text-surface-200 mb-6">Graph Node Not Found</p>
+        <p className="text-b1 text-surface-400 mb-10 max-w-sm mx-auto leading-relaxed">
+          The requested coordinate doesn't exist in the CredGraph protocol. Please check the URL or return home.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/">
-            <Button icon={<Home className="w-4 h-4" />}>
-              Back to Home
+            <Button size="lg" icon={<Home className="w-4 h-4" />}>
+              Back to Safety
             </Button>
           </Link>
           <Link href="/verify">
-            <Button variant="outline" icon={<Search className="w-4 h-4" />}>
-              Verify Credentials
+            <Button variant="secondary" size="lg" icon={<Search className="w-4 h-4" />}>
+              Try Searching
             </Button>
           </Link>
         </div>

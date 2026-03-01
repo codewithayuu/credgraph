@@ -1,173 +1,174 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useWallet } from "@/hooks/useWallet";
-import { useCredentialStore } from "@/store/credentialStore";
-import { Tabs } from "@/components/ui/Tabs";
-import { GlowOrb } from "@/components/ui/GlowOrb";
-import { WalletAddress } from "@/components/ui/WalletAddress";
-import { Badge } from "@/components/ui/Badge";
+import { motion } from "framer-motion";
+import { useStudent } from "@/hooks/useStudent";
 import { StudentConnectPrompt } from "@/components/student/StudentConnectPrompt";
 import { CredentialsGrid } from "@/components/student/CredentialsGrid";
-import { ProgressTracker } from "@/components/student/ProgressTracker";
-import { ShareTools } from "@/components/student/ShareTools";
-import { TimelineView } from "@/components/student/TimelineView";
-import {
-  GraduationCap,
-  LayoutGrid,
-  TrendingUp,
-  Share2,
-  Clock,
-  Award,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { ClaimFlow } from "@/components/student/ClaimFlow";
+import { ExpiryAlerts } from "@/components/student/ExpiryAlerts";
+import { StudentSkillPathsTab } from "@/components/student/StudentSkillPathsTab";
+import { StudentTimelineTab } from "@/components/student/StudentTimelineTab";
+import { StudentShareTab } from "@/components/student/StudentShareTab";
+import { WalletAddress } from "@/components/ui/WalletAddress";
+import { PageTransition } from "@/components/shared/PageTransition";
+import { cn } from "@/lib/utils";
+
+const TABS = [
+  { id: "credentials", label: "Credentials" },
+  { id: "claims", label: "Claims" },
+  { id: "paths", label: "Skill Paths" },
+  { id: "timeline", label: "Timeline" },
+  { id: "share", label: "Share" },
+];
 
 export default function StudentPage() {
-  const { address, isConnected } = useWallet();
-  const { getCredentialsByRecipient } = useCredentialStore();
+  const { address, isConnected, stats, progress } = useStudent();
   const [activeTab, setActiveTab] = useState("credentials");
 
-  if (!isConnected || !address) {
-    return <StudentConnectPrompt />;
+  if (!isConnected) {
+    return (
+      <PageTransition>
+        <StudentConnectPrompt />
+      </PageTransition>
+    );
   }
 
-  const credentials = getCredentialsByRecipient(address);
-  const activeCount = credentials.filter((c) => c.status === "active").length;
-  const revokedCount = credentials.filter((c) => c.status === "revoked").length;
-
-  const tabs = [
-    { id: "credentials", label: "My Credentials", icon: <LayoutGrid className="w-4 h-4" />, count: credentials.length },
-    { id: "progress", label: "Skill Paths", icon: <TrendingUp className="w-4 h-4" /> },
-    { id: "timeline", label: "Timeline", icon: <Clock className="w-4 h-4" /> },
-    { id: "share", label: "Share & Verify", icon: <Share2 className="w-4 h-4" /> },
-  ];
-
   return (
-    <div className="page-container relative">
-      <GlowOrb color="cyber" size="lg" className="top-0 left-[-100px] opacity-20" />
-      <GlowOrb color="accent" size="md" className="bottom-[20%] right-[-80px] opacity-15" />
+    <PageTransition>
+      <div className="min-h-screen">
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 right-[-15%] w-[700px] h-[500px] rounded-full bg-electric-500/[0.02] blur-[120px]" />
+        </div>
 
-      <div className="relative section-container py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <StudentHeader
-            address={address}
-            totalCredentials={credentials.length}
-            activeCount={activeCount}
-            revokedCount={revokedCount}
-          />
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-electric-500/10 border border-electric-500/20 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-electric-400">
+                  <path d="M10 2L4 6V10L10 14L16 10V6L10 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                  <path d="M4 10V14L10 18L16 14V10" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-d4 font-bold text-white font-display">Dashboard</h1>
+                <p className="text-b3 text-surface-400">Your credentials and progress</p>
+              </div>
+            </div>
 
-          <div className="mt-8">
-            <Tabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              variant="default"
-            />
-          </div>
+            {/* Stat pills */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <StatPill label="Total" value={stats.total} color="electric" />
+              <StatPill label="Active" value={stats.active} color="neon" />
+              {stats.claimableCount > 0 && (
+                <StatPill label="Claimable" value={stats.claimableCount} color="gold" />
+              )}
+              {stats.expiringCount > 0 && (
+                <StatPill label="Expiring" value={stats.expiringCount} color="gold" />
+              )}
+              <StatPill label="Composite" value={stats.compositeCount} color="violet" />
+              <StatPill label="Paths" value={stats.completedPaths} color="azure" />
+              {stats.revoked > 0 && (
+                <StatPill label="Revoked" value={stats.revoked} color="crimson" />
+              )}
+            </div>
 
-          <div className="mt-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.3 }}
-              >
-                {activeTab === "credentials" && <CredentialsGrid address={address} />}
-                {activeTab === "progress" && <ProgressTracker address={address} />}
-                {activeTab === "timeline" && <TimelineView address={address} />}
-                {activeTab === "share" && <ShareTools address={address} />}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </motion.div>
+            <div className="flex items-center gap-3">
+              {address && <WalletAddress address={address} showCopy showExplorer truncateChars={10} />}
+              <span className="text-micro px-2.5 py-1 rounded-full bg-electric-500/8 border border-electric-500/15 text-electric-400 font-semibold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-electric-400" />
+                Connected
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8"
+          >
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-surface-900/60 border border-surface-800 w-fit overflow-x-auto">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "relative px-4 py-2 rounded-lg text-b3 font-medium transition-all duration-200 whitespace-nowrap",
+                    activeTab === tab.id ? "text-electric-400" : "text-surface-400 hover:text-surface-200"
+                  )}
+                >
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="student-tab-bg"
+                      className="absolute inset-0 rounded-lg bg-electric-500/10 border border-electric-500/15"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    {tab.label}
+                    {tab.id === "claims" && stats.claimableCount > 0 && (
+                      <span className="text-micro px-1.5 py-0.5 rounded-full bg-gold-500/20 text-gold-400 font-bold">
+                        {stats.claimableCount}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Content */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="space-y-8"
+          >
+            {activeTab === "credentials" && (
+              <>
+                <ExpiryAlerts />
+                {address && <CredentialsGrid address={address} />}
+              </>
+            )}
+            {activeTab === "claims" && <ClaimFlow />}
+            {activeTab === "paths" && <StudentSkillPathsTab />}
+            {activeTab === "timeline" && <StudentTimelineTab />}
+            {activeTab === "share" && <StudentShareTab />}
+          </motion.div>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
 
-function StudentHeader({
-  address,
-  totalCredentials,
-  activeCount,
-  revokedCount,
-}: {
-  address: string;
-  totalCredentials: number;
-  activeCount: number;
-  revokedCount: number;
-}) {
-  return (
-    <div className="glass rounded-2xl p-6 card-highlight">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyber-500 to-accent-500 flex items-center justify-center text-white shadow-lg shadow-cyber-500/20">
-            <GraduationCap className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-heading-xl font-bold text-white mb-1">
-              Student Dashboard
-            </h1>
-            <WalletAddress address={address} showCopy showExplorer truncateChars={8} />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <StatPill
-            icon={<Award className="w-3.5 h-3.5" />}
-            value={totalCredentials}
-            label="Total"
-            color="brand"
-          />
-          <StatPill
-            icon={<CheckCircle2 className="w-3.5 h-3.5" />}
-            value={activeCount}
-            label="Active"
-            color="accent"
-          />
-          {revokedCount > 0 && (
-            <StatPill
-              icon={<XCircle className="w-3.5 h-3.5" />}
-              value={revokedCount}
-              label="Revoked"
-              color="danger"
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatPill({
-  icon,
-  value,
-  label,
-  color,
-}: {
-  icon: React.ReactNode;
-  value: number;
-  label: string;
-  color: "brand" | "accent" | "danger";
-}) {
-  const colors = {
-    brand: "bg-brand-500/10 text-brand-400 border-brand-500/20",
-    accent: "bg-accent-500/10 text-accent-400 border-accent-500/20",
-    danger: "bg-red-500/10 text-red-400 border-red-500/20",
+function StatPill({ label, value, color }: { label: string; value: number; color: string }) {
+  const colorMap: Record<string, string> = {
+    gold: "bg-gold-500/8 border-gold-500/15 text-gold-400",
+    neon: "bg-neon-500/8 border-neon-500/15 text-neon-400",
+    electric: "bg-electric-500/8 border-electric-500/15 text-electric-400",
+    crimson: "bg-crimson-500/8 border-crimson-500/15 text-crimson-400",
+    azure: "bg-azure-500/8 border-azure-500/15 text-azure-400",
+    violet: "bg-violet-500/8 border-violet-500/15 text-violet-400",
   };
-
   return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${colors[color]}`}>
-      {icon}
-      <span className="text-heading-md font-bold">{value}</span>
-      <span className="text-caption font-medium opacity-70">{label}</span>
+    <span className={cn("text-micro px-2.5 py-1 rounded-full border font-medium", colorMap[color] || colorMap.electric)}>
+      {value} {label}
+    </span>
+  );
+}
+
+function Placeholder({ label }: { label: string }) {
+  return (
+    <div className="rounded-xl bg-surface-900/40 border border-surface-800 p-12 text-center">
+      <p className="text-b2 text-surface-400">{label} — coming soon</p>
     </div>
   );
 }

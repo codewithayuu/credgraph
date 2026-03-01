@@ -1,30 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+
 import { useCredentialStore } from "@/store/credentialStore";
+
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { StatusIndicator } from "@/components/ui/StatusIndicator";
 import { Modal } from "@/components/ui/Modal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { WalletAddress } from "@/components/ui/WalletAddress";
-import { Button } from "@/components/ui/Button";
-import { Credential } from "@/lib/types";
-import { CREDENTIAL_CATEGORIES, CREDENTIAL_TIERS } from "@/lib/constants";
+
+import type { Credential } from "@/lib/types";
 import { formatTimestamp, getExplorerUrl } from "@/lib/utils";
-import {
-  Award,
-  Crown,
-  Tag,
-  Layers,
-  Calendar,
-  ExternalLink,
-  Hash,
-  Building2,
-  ShieldCheck,
-  LayoutGrid,
-} from "lucide-react";
 
 interface Props {
   address: string;
@@ -32,68 +21,76 @@ interface Props {
 
 export const CredentialsGrid: React.FC<Props> = ({ address }) => {
   const { getCredentialsByRecipient, getIssuerByAddress } = useCredentialStore();
-  const [selectedCredential, setSelectedCredential] = useState<Credential | null>(null);
+  const [selected, setSelected] = useState<Credential | null>(null);
 
-  const credentials = getCredentialsByRecipient(address);
-  const composites = credentials.filter((c) => c.category === "certification" && c.tier === "expert");
-  const micros = credentials.filter((c) => !(c.category === "certification" && c.tier === "expert"));
+  const credentials = useMemo(() => getCredentialsByRecipient(address), [address, getCredentialsByRecipient]);
+
+  const { composites, micros } = useMemo(() => {
+    const isComposite = (c: Credential) => c.category === "certification" && c.tier === "expert";
+    return {
+      composites: credentials.filter(isComposite),
+      micros: credentials.filter((c) => !isComposite(c)),
+    };
+  }, [credentials]);
 
   if (credentials.length === 0) {
     return (
       <EmptyState
-        icon={<LayoutGrid className="w-8 h-8 text-dark-500" />}
-        title="No Credentials Yet"
-        description="Your earned credentials will appear here. Ask your institution to issue credentials to your wallet address."
+        icon={<MarkGrid className="w-8 h-8 text-surface-500" />}
+        title="No credentials yet"
+        description="When an institution issues credentials to your wallet address, they will appear here."
       />
     );
   }
 
   return (
-    <div>
+    <div className="space-y-10">
       {composites.length > 0 && (
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Crown className="w-5 h-5 text-amber-400" />
-            <h3 className="text-heading-md font-bold text-white">Composite Credentials</h3>
+        <section>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-2xl bg-gold-500/10 border border-gold-500/14 text-gold-300 flex items-center justify-center">
+              <MarkCrown />
+            </div>
+            <div>
+              <h3 className="font-display text-h1 text-white leading-tight">Composite credentials</h3>
+              <p className="text-b3 text-surface-500 mt-1">Mastery credentials composed from verified micros.</p>
+            </div>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {composites.map((cred, i) => (
               <CredentialCard
                 key={cred.id}
                 credential={cred}
                 index={i}
-                isComposite
-                onClick={() => setSelectedCredential(cred)}
+                composite
+                onClick={() => setSelected(cred)}
               />
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <Award className="w-5 h-5 text-brand-400" />
-          <h3 className="text-heading-md font-bold text-white">Micro-Credentials</h3>
+      <section>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-2xl bg-electric-500/10 border border-electric-500/14 text-electric-300 flex items-center justify-center">
+            <MarkBadge />
+          </div>
+          <div>
+            <h3 className="font-display text-h1 text-white leading-tight">Micro-credentials</h3>
+            <p className="text-b3 text-surface-500 mt-1">Portable proofs minted by issuers, owned by you.</p>
+          </div>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {micros.map((cred, i) => (
-            <CredentialCard
-              key={cred.id}
-              credential={cred}
-              index={i}
-              onClick={() => setSelectedCredential(cred)}
-            />
+            <CredentialCard key={cred.id} credential={cred} index={i} onClick={() => setSelected(cred)} />
           ))}
         </div>
-      </div>
+      </section>
 
-      <Modal
-        isOpen={!!selectedCredential}
-        onClose={() => setSelectedCredential(null)}
-        title="Credential Details"
-        size="lg"
-      >
-        {selectedCredential && <CredentialDetail credential={selectedCredential} />}
+      <Modal isOpen={!!selected} onClose={() => setSelected(null)} title="Credential details" size="lg">
+        {selected && <CredentialDetail credential={selected} issuerVerified={!!getIssuerByAddress(selected.issuerAddress)} />}
       </Modal>
     </div>
   );
@@ -102,67 +99,68 @@ export const CredentialsGrid: React.FC<Props> = ({ address }) => {
 function CredentialCard({
   credential,
   index,
-  isComposite,
+  composite,
   onClick,
 }: {
   credential: Credential;
   index: number;
-  isComposite?: boolean;
+  composite?: boolean;
   onClick: () => void;
 }) {
-  const catConfig = CREDENTIAL_CATEGORIES[credential.category];
-  const tierConfig = CREDENTIAL_TIERS[credential.tier];
+  const isRevoked = credential.status === "revoked";
+  const cat = categoryMeta(credential.category);
+  const tier = tierMeta(credential.tier);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.08 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: index * 0.05 }}>
       <Card
         variant="interactive"
         padding="md"
         onClick={onClick}
-        className={isComposite ? "border-amber-500/20 bg-amber-500/3" : ""}
+        className={[
+          "overflow-hidden",
+          composite ? "border-gold-500/14 bg-gradient-to-br from-gold-500/8 to-transparent" : "",
+          isRevoked ? "border-crimson-500/14 bg-gradient-to-br from-crimson-500/10 to-transparent" : "",
+        ].join(" ")}
       >
-        <div className="flex items-start justify-between mb-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            isComposite
-              ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/15"
-              : `${catConfig?.bgColor || "bg-dark-800"}` 
-          }`}>
-            {isComposite ? (
-              <Crown className="w-5 h-5" />
-            ) : (
-              <Award className={`w-5 h-5 ${catConfig?.color || "text-dark-400"}`} />
-            )}
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div
+            className={[
+              "w-12 h-12 rounded-2xl border border-white/6 flex items-center justify-center",
+              composite ? "bg-gold-500/10 text-gold-300" : `bg-surface-900/35 ${cat.ink}`,
+            ].join(" ")}
+          >
+            {composite ? <MarkCrown /> : cat.mark}
           </div>
-          <StatusIndicator
-            status={credential.status === "active" ? "active" : "revoked"}
-            size="sm"
-          />
+
+          <StatusIndicator status={isRevoked ? "revoked" : "active"} size="sm" />
         </div>
 
-        <h3 className="text-body-lg font-semibold text-white mb-1 line-clamp-1">
+        <h4 className={["text-b2 font-semibold leading-snug", isRevoked ? "text-surface-400 line-through decoration-crimson-500/30" : "text-white"].join(" ")}>
           {credential.credentialTypeName}
-        </h3>
-        <p className="text-body-sm text-dark-400 mb-3 line-clamp-1">
-          {credential.issuerName}
-        </p>
+        </h4>
 
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          <Badge variant="info" size="sm">{catConfig?.label || credential.category}</Badge>
-          <Badge variant="brand" size="sm">{tierConfig?.label || credential.tier}</Badge>
+        <p className="text-b3 text-surface-500 mt-1 line-clamp-1">{credential.issuerName}</p>
+
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Badge variant={composite ? "gold" : cat.badge} size="sm">
+            {cat.label}
+          </Badge>
+          <Badge variant={composite ? "gold" : tier.badge} size="sm">
+            {tier.label}
+          </Badge>
         </div>
 
-        <div className="flex items-center gap-1.5 text-caption text-dark-500">
-          <Calendar className="w-3 h-3" />
-          {formatTimestamp(credential.issuedAt)}
+        <div className="mt-4 flex items-center gap-2 text-cap text-surface-500">
+          <span className="text-surface-500">
+            <MarkCalendar />
+          </span>
+          <span>{formatTimestamp(credential.issuedAt)}</span>
         </div>
 
-        {credential.status === "revoked" && credential.revocationReason && (
-          <div className="mt-3 p-2 rounded-lg bg-red-500/5 border border-red-500/10">
-            <p className="text-caption text-red-400 line-clamp-1">
+        {isRevoked && credential.revocationReason && (
+          <div className="mt-4 rounded-2xl border border-crimson-500/12 bg-crimson-500/8 p-3">
+            <p className="text-cap text-crimson-300 line-clamp-2">
               Revoked: {credential.revocationReason}
             </p>
           </div>
@@ -172,72 +170,211 @@ function CredentialCard({
   );
 }
 
-function CredentialDetail({ credential }: { credential: Credential }) {
-  const { getIssuerByAddress } = useCredentialStore();
-  const issuer = getIssuerByAddress(credential.issuerAddress);
+function CredentialDetail({ credential, issuerVerified }: { credential: Credential; issuerVerified: boolean }) {
+  const isRevoked = credential.status === "revoked";
+  const cat = categoryMeta(credential.category);
+  const tier = tierMeta(credential.tier);
 
-  const details = [
+  const details: Array<{ label: string; value: string; mono?: boolean }> = [
     { label: "Credential ID", value: credential.id, mono: true },
-    { label: "ASA ID", value: credential.asaId.toString(), mono: true },
+    { label: "ASA ID", value: String(credential.asaId), mono: true },
     { label: "Type ID", value: credential.credentialTypeId, mono: true },
-    { label: "Category", value: CREDENTIAL_CATEGORIES[credential.category]?.label || credential.category },
-    { label: "Tier", value: CREDENTIAL_TIERS[credential.tier]?.label || credential.tier },
+    { label: "Category", value: cat.label },
+    { label: "Tier", value: tier.label },
     { label: "Issued", value: formatTimestamp(credential.issuedAt) },
   ];
 
-  if (credential.evidenceHash) {
-    details.push({ label: "Evidence Hash", value: credential.evidenceHash, mono: true });
-  }
-
-  if (credential.status === "revoked") {
+  if (credential.evidenceHash) details.push({ label: "Evidence", value: credential.evidenceHash, mono: true });
+  if (isRevoked) {
     details.push({ label: "Revoked", value: credential.revokedAt ? formatTimestamp(credential.revokedAt) : "Unknown" });
     details.push({ label: "Reason", value: credential.revocationReason || "No reason provided" });
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-500 to-cyber-500 flex items-center justify-center text-white shadow-lg">
-          <Award className="w-7 h-7" />
+      <div className="flex items-start gap-4">
+        <div className={["w-14 h-14 rounded-2xl border border-white/6 flex items-center justify-center", isRevoked ? "bg-crimson-500/10 text-crimson-300" : `bg-surface-900/35 ${cat.ink}`].join(" ")}>
+          {isRevoked ? <MarkX /> : cat.markLarge}
         </div>
-        <div>
-          <h3 className="text-heading-lg font-bold text-white">{credential.credentialTypeName}</h3>
-          <StatusIndicator status={credential.status === "active" ? "active" : "revoked"} />
+
+        <div className="min-w-0">
+          <h3 className="font-display text-h1 text-white leading-tight">{credential.credentialTypeName}</h3>
+          <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <StatusIndicator status={isRevoked ? "revoked" : "active"} />
+            <Badge variant={cat.badge} size="sm">{cat.label}</Badge>
+            <Badge variant={tier.badge} size="sm">{tier.label}</Badge>
+          </div>
         </div>
       </div>
 
-      <div className="p-4 rounded-xl bg-dark-800/40 border border-dark-700/30">
-        <div className="flex items-center gap-2 mb-2">
-          <Building2 className="w-4 h-4 text-brand-400" />
-          <span className="text-body-sm font-medium text-dark-200">Issuer</span>
-          {issuer && <StatusIndicator status="verified" size="sm" label="Verified" />}
+      <div className="panel rounded-3xl border border-surface-800/50 p-5">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <p className="text-micro uppercase tracking-[0.22em] text-surface-500">Issuer</p>
+            <p className="text-b2 text-white mt-2">{credential.issuerName}</p>
+            <div className="mt-2">
+              <WalletAddress address={credential.issuerAddress} showCopy showExplorer truncateChars={8} />
+            </div>
+          </div>
+
+          <StatusIndicator status={issuerVerified ? "verified" : "unverified"} size="sm" label={issuerVerified ? "Verified issuer" : "Unregistered issuer"} />
         </div>
-        <p className="text-body-md text-white">{credential.issuerName}</p>
-        <WalletAddress address={credential.issuerAddress} showCopy showExplorer className="mt-1 text-caption" />
       </div>
 
       <div className="space-y-2">
-        {details.map((d, i) => (
-          <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-dark-800/20 border border-dark-700/15">
-            <span className="text-body-sm text-dark-400">{d.label}</span>
-            <span className={`text-body-sm text-dark-200 ${(d as any).mono ? "font-mono" : ""} text-right max-w-[60%] truncate`}>
+        {details.map((d) => (
+          <div key={d.label} className="flex items-center justify-between gap-4 rounded-2xl border border-surface-800/55 bg-surface-900/45 p-4">
+            <span className="text-b3 text-surface-400">{d.label}</span>
+            <span className={d.mono ? "text-b3 text-surface-200 font-mono max-w-[60%] truncate text-right" : "text-b3 text-surface-200 max-w-[60%] truncate text-right"}>
               {d.value}
             </span>
           </div>
         ))}
       </div>
 
-      {credential.txId && (
+      <div className="flex flex-col sm:flex-row gap-3">
+        {credential.txId && (
+          <a
+            href={getExplorerUrl("transaction", credential.txId)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="panel rounded-2xl border border-surface-800/55 px-4 py-3 text-b3 text-surface-300 hover:text-gold-300 hover:border-gold-500/18 transition-colors inline-flex items-center justify-center gap-2"
+          >
+            <MarkExternal />
+            View transaction
+          </a>
+        )}
         <a
-          href={getExplorerUrl("transaction", credential.txId)}
+          href={getExplorerUrl("asset", credential.asaId)}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full p-3 rounded-xl border border-dark-700/50 text-body-sm text-dark-300 hover:text-brand-400 hover:border-brand-500/30 transition-all"
+          className="panel rounded-2xl border border-surface-800/55 px-4 py-3 text-b3 text-surface-300 hover:text-gold-300 hover:border-gold-500/18 transition-colors inline-flex items-center justify-center gap-2"
         >
-          <ExternalLink className="w-4 h-4" />
-          View on Algorand Explorer
+          <MarkExternal />
+          View ASA
         </a>
-      )}
+      </div>
     </div>
+  );
+}
+
+/* Local, safe mapping (no dependency on constants export names) */
+function categoryMeta(category: string): {
+  label: string;
+  badge: "azure" | "violet" | "electric" | "gold" | "default";
+  ink: string;
+  mark: React.ReactNode;
+  markLarge: React.ReactNode;
+} {
+  const c = (category || "").toLowerCase();
+
+  if (c === "technical") {
+    return { label: "Technical", badge: "azure", ink: "text-azure-300", mark: <MarkTech />, markLarge: <MarkTech large /> };
+  }
+  if (c === "soft_skill" || c === "soft") {
+    return { label: "Soft skill", badge: "violet", ink: "text-violet-300", mark: <MarkSoft />, markLarge: <MarkSoft large /> };
+  }
+  if (c === "participation") {
+    return { label: "Participation", badge: "electric", ink: "text-electric-300", mark: <MarkFlag />, markLarge: <MarkFlag large /> };
+  }
+  if (c === "certification") {
+    return { label: "Certification", badge: "gold", ink: "text-gold-300", mark: <MarkCrown />, markLarge: <MarkCrown large /> };
+  }
+
+  return { label: category || "Credential", badge: "default", ink: "text-surface-300", mark: <MarkBadge />, markLarge: <MarkBadge large /> };
+}
+
+function tierMeta(tier: string): { label: string; badge: "default" | "electric" | "azure" | "gold" } {
+  const t = (tier || "").toLowerCase();
+  if (t === "beginner") return { label: "Beginner", badge: "default" };
+  if (t === "intermediate") return { label: "Intermediate", badge: "electric" };
+  if (t === "advanced") return { label: "Advanced", badge: "azure" };
+  if (t === "expert" || t === "mastery") return { label: "Expert", badge: "gold" };
+  return { label: tier || "Tier", badge: "default" };
+}
+
+/* Marks */
+function MarkExternal() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M10 6h8v8" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18 6l-9.5 9.5" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" />
+      <path d="M8 6H7.2C6 6 5 7 5 8.2v8.6C5 18 6 19 7.2 19h8.6c1.2 0 2.2-1 2.2-2.2V16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" opacity="0.65" />
+    </svg>
+  );
+}
+
+function MarkCalendar() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M7 4.8v2.4M17 4.8v2.4" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" />
+      <path d="M6.2 8.2h11.6" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" opacity="0.8" />
+      <path d="M6.2 6.6h11.6c1 0 1.8.8 1.8 1.8v9.4c0 1-.8 1.8-1.8 1.8H6.2c-1 0-1.8-.8-1.8-1.8V8.4c0-1 .8-1.8 1.8-1.8Z" stroke="currentColor" strokeWidth="1.8" opacity="0.7" />
+    </svg>
+  );
+}
+
+function MarkX() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M6 6l12 12" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MarkGrid({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <path d="M4.8 4.8h6.8v6.8H4.8V4.8Z" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M12.4 4.8h6.8v6.8h-6.8V4.8Z" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M12.4 12.4h6.8v6.8h-6.8v-6.8Z" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M4.8 12.4h6.8v6.8H4.8v-6.8Z" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+function MarkCrown({ large }: { large?: boolean }) {
+  return (
+    <svg width={large ? 26 : 20} height={large ? 26 : 20} viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M6.2 9.2l3.1 3.2L12 8l2.7 4.4l3.1-3.2v8.6H6.2V9.2Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
+      <path d="M6.2 17.8h11.6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" opacity="0.7" />
+    </svg>
+  );
+}
+
+function MarkBadge({ large }: { large?: boolean }) {
+  return (
+    <svg width={large ? 26 : 20} height={large ? 26 : 20} viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M12 3.5l7 4v8c0 4-3 6.8-7 8c-4-1.2-7-4-7-8v-8l7-4Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" opacity="0.85" />
+      <path d="M9 12.2l2 2l4-4.2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MarkTech({ large }: { large?: boolean }) {
+  return (
+    <svg width={large ? 26 : 20} height={large ? 26 : 20} viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M7.2 7.6l4.8-2.8l4.8 2.8v5.5l-4.8 2.8l-4.8-2.8V7.6Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
+      <path d="M12 4.8v10.9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" opacity="0.55" />
+    </svg>
+  );
+}
+
+function MarkSoft({ large }: { large?: boolean }) {
+  return (
+    <svg width={large ? 26 : 20} height={large ? 26 : 20} viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M8.2 12a3.8 3.8 0 1 1 7.6 0c0 3.3-2.2 6.2-3.8 7.5C10.4 18.2 8.2 15.3 8.2 12Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
+      <path d="M12 9.2h.01" stroke="currentColor" strokeWidth="3.0" strokeLinecap="round" opacity="0.7" />
+    </svg>
+  );
+}
+
+function MarkFlag({ large }: { large?: boolean }) {
+  return (
+    <svg width={large ? 26 : 20} height={large ? 26 : 20} viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M6.8 20V5.2" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" />
+      <path d="M6.8 6.2h9l-1.2 3.2l1.2 3.2h-9" stroke="currentColor" strokeWidth="2.0" strokeLinejoin="round" opacity="0.85" />
+    </svg>
   );
 }

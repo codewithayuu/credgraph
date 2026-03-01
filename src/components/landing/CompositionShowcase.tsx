@@ -7,181 +7,182 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { StatusIndicator } from "@/components/ui/StatusIndicator";
-import {
-  CheckCircle2,
-  Circle,
-  Layers,
-  ArrowRight,
-  Sparkles,
-  Crown,
-  Code,
-  Database,
-  Server,
-  Plug,
-  Cloud,
-} from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Circle } from "lucide-react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 
-const microCredentials = [
-  { id: "CT-001", name: "React.js Proficiency", icon: <Code className="w-4 h-4" />, earned: true },
-  { id: "CT-002", name: "Database Fundamentals", icon: <Database className="w-4 h-4" />, earned: true },
-  { id: "CT-003", name: "Node.js Backend", icon: <Server className="w-4 h-4" />, earned: true },
-  { id: "CT-004", name: "API Design Mastery", icon: <Plug className="w-4 h-4" />, earned: true },
-  { id: "CT-005", name: "Cloud Deployment", icon: <Cloud className="w-4 h-4" />, earned: false },
+const micros = [
+  { id: "CT-001", name: "React.js Proficiency", earned: true, mark: <MicroMarkCode /> },
+  { id: "CT-002", name: "Database Fundamentals", earned: true, mark: <MicroMarkDatabase /> },
+  { id: "CT-003", name: "Node.js Backend", earned: true, mark: <MicroMarkRoute /> },
+  { id: "CT-004", name: "API Design Mastery", earned: true, mark: <MicroMarkLink /> },
+  { id: "CT-005", name: "Cloud Deployment", earned: false, mark: <MicroMarkCloud /> },
 ];
 
 export const CompositionShowcase: React.FC = () => {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.2 });
-  const [simCompleted, setSimCompleted] = useState(false);
-  const earnedCount = simCompleted ? 5 : 4;
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.14 });
+  const [completed, setCompleted] = useState(false);
+
+  const earned = completed ? 5 : 4;
 
   return (
     <section ref={ref} className="relative py-28 overflow-hidden">
-      <div className="absolute inset-0 dot-pattern opacity-30" />
+      <div className="absolute inset-0 dot-bg opacity-[0.22]" />
 
-      <div className="relative section-container">
+      <div className="relative section-wrapper">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-caption font-semibold text-amber-400 uppercase tracking-wider mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/8 border border-gold-500/14 text-micro text-gold-300 uppercase tracking-widest mb-5">
             Composition Engine
           </span>
-          <h2 className="text-display-sm md:text-display-md font-black text-white mb-4">
-            Micro-Credentials{" "}
-            <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              Compose Into Mastery
-            </span>
+          <h2 className="font-display text-d3 text-white mb-4">
+            Micro-credentials <span className="text-gradient-gold">compose into mastery</span>
           </h2>
-          <p className="text-body-lg text-dark-400 max-w-2xl mx-auto">
-            Define skill paths with composition rules. When all prerequisites are earned, the composite credential is automatically issued.
+          <p className="text-b1 text-surface-400 max-w-2xl mx-auto">
+            Define skill paths. When prerequisites are met, the composite credential can be issued automatically.
           </p>
         </motion.div>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Card variant="gradient" padding="lg" className="relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-amber-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
-                    <Crown className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-heading-lg font-bold text-white">
-                      Full Stack Developer
-                    </h3>
-                    <p className="text-body-sm text-dark-400">
-                      Composite Credential — ABC University CS Dept
-                    </p>
-                  </div>
+            <Card variant="golden" padding="lg">
+              <div className="relative">
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl bg-gold-500/10" />
+                  <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full blur-3xl bg-electric-500/8" />
                 </div>
-                <Badge
-                  variant={simCompleted ? "success" : "warning"}
-                  size="lg"
-                  dot
-                  pulse={simCompleted}
-                >
-                  {simCompleted ? "EARNED" : `${earnedCount}/5 Complete`}
-                </Badge>
-              </div>
 
-              <ProgressBar
-                value={earnedCount}
-                max={5}
-                label="Skill Path Progress"
-                showFraction
-                showPercentage
-                size="lg"
-                className="mb-8"
-              />
-
-              <div className="space-y-3 mb-8">
-                {microCredentials.map((cred, i) => {
-                  const isEarned = cred.earned || (simCompleted && cred.id === "CT-005");
-                  return (
-                    <motion.div
-                      key={cred.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={inView ? { opacity: 1, x: 0 } : {}}
-                      transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
-                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all duration-500 ${
-                        isEarned
-                          ? "bg-accent-500/5 border-accent-500/15"
-                          : "bg-dark-800/30 border-dark-700/30"
-                      }`}
-                    >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        isEarned ? "bg-accent-500/20 text-accent-400" : "bg-dark-700/50 text-dark-500"
-                      }`}>
-                        {cred.icon}
-                      </div>
-                      <span className={`flex-1 text-body-md font-medium ${isEarned ? "text-dark-100" : "text-dark-500"}`}>
-                        {cred.name}
-                      </span>
-                      <span className="text-caption font-mono text-dark-600">{cred.id}</span>
-                      {isEarned ? (
-                        <StatusIndicator status="active" label="Earned" size="sm" />
-                      ) : (
-                        <StatusIndicator status="pending" label="Missing" size="sm" />
-                      )}
-                    </motion.div>
-                  );
-                })}
-              </div>
-
-              <div className="flex items-center justify-center">
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setSimCompleted(!simCompleted)}
-                  className={`flex items-center gap-3 px-8 py-3.5 rounded-xl font-semibold text-body-md transition-all duration-500 ${
-                    simCompleted
-                      ? "bg-dark-800 text-dark-300 border border-dark-600/50 hover:bg-dark-700"
-                      : "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40"
-                  }`}
-                >
-                  {simCompleted ? (
-                    <>
-                      <Circle className="w-4 h-4" />
-                      Reset Simulation
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      Simulate: Earn Cloud Deployment
-                    </>
-                  )}
-                </motion.button>
-              </div>
-
-              <AnimatePresence>
-                {simCompleted && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20, height: 0 }}
-                    animate={{ opacity: 1, y: 0, height: "auto" }}
-                    exit={{ opacity: 0, y: -20, height: 0 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="mt-8 p-6 rounded-xl bg-gradient-to-r from-accent-500/10 via-accent-500/5 to-emerald-500/10 border border-accent-500/20"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <Sparkles className="w-5 h-5 text-accent-400" />
-                      <span className="text-heading-md font-bold text-accent-300">
-                        Composite Credential Auto-Issued!
-                      </span>
+                <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 bg-gold-500/10 blur-2xl rounded-full opacity-60"
+                      />
+                      <BrandLogo size={64} className="relative z-10" />
                     </div>
-                    <p className="text-body-md text-dark-400">
-                      All 5 required micro-credentials have been verified. The &ldquo;Full Stack Developer&rdquo; mastery credential has been automatically minted as an NFT and delivered to the student&apos;s wallet.
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <div>
+                      <h3 className="font-display text-h1 text-white leading-tight">
+                        Full Stack
+                        <span className="text-gradient-gold"> Developer</span>
+                      </h3>
+                      <p className="text-b3 text-surface-400 mt-1">Composite credential — ABC University (CS)</p>
+                    </div>
+                  </div>
+
+                  <Badge variant={completed ? "neon" : "gold"} size="lg" dot pulse={completed}>
+                    {completed ? "EARNED" : `${earned}/5 COMPLETE`}
+                  </Badge>
+                </div>
+
+                <ProgressBar
+                  value={earned}
+                  max={5}
+                  label="Skill path progress"
+                  showFraction
+                  showPercentage
+                  size="lg"
+                  className="mb-8"
+                />
+
+                <div className="space-y-2.5 mb-9">
+                  {micros.map((cred, i) => {
+                    const isEarned = cred.earned || (completed && cred.id === "CT-005");
+
+                    return (
+                      <motion.div
+                        key={cred.id}
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={inView ? { opacity: 1, x: 0 } : {}}
+                        transition={{ duration: 0.45, delay: 0.25 + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                        className={[
+                          "relative rounded-2xl border p-4",
+                          "transition-[border-color,box-shadow,transform,background-color] duration-200",
+                          isEarned
+                            ? "bg-neon-500/5 border-neon-500/14 hover:border-neon-500/22 hover:shadow-glow-neon"
+                            : "bg-surface-900/40 border-surface-800/40 hover:border-surface-700/50 hover:shadow-panel-hover",
+                        ].join(" ")}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={[
+                              "w-10 h-10 rounded-2xl border border-white/6 flex items-center justify-center",
+                              isEarned ? "bg-neon-500/10 text-neon-300" : "bg-surface-900/40 text-surface-500",
+                            ].join(" ")}
+                          >
+                            {cred.mark}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-3">
+                              <span className={`text-b2 font-semibold ${isEarned ? "text-surface-100" : "text-surface-400"}`}>
+                                {cred.name}
+                              </span>
+                              <span className="text-cap font-mono text-surface-600">{cred.id}</span>
+                            </div>
+                            <div className="mt-2">
+                              <StatusIndicator status={isEarned ? "active" : "pending"} label={isEarned ? "Earned" : "Missing"} size="sm" />
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex justify-center">
+                  {completed ? (
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      icon={<Circle className="w-4 h-4" />}
+                      onClick={() => setCompleted(false)}
+                    >
+                      Reset simulation
+                    </Button>
+                  ) : (
+                    <Button size="lg" onClick={() => setCompleted(true)}>
+                      Simulate: earn Cloud Deployment
+                    </Button>
+                  )}
+                </div>
+
+                <AnimatePresence>
+                  {completed && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 14, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: "auto" }}
+                      exit={{ opacity: 0, y: -14, height: 0 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      className="mt-9 overflow-hidden"
+                    >
+                      <div className="panel rounded-3xl border border-neon-500/14 bg-gradient-to-br from-neon-500/8 to-transparent p-6">
+                        <div className="flex items-center justify-between gap-6 flex-wrap">
+                          <div>
+                            <p className="text-micro uppercase tracking-[0.22em] text-neon-300">Auto-issue trigger</p>
+                            <h4 className="font-display text-h2 text-white mt-2">Composite credential issued</h4>
+                            <p className="text-b2 text-surface-400 mt-2">
+                              All 5 required micro-credentials verified. A mastery credential is minted with a component proof graph.
+                            </p>
+                          </div>
+                          <div className="w-24 h-10 rounded-xl bg-surface-950/40 border border-surface-800/55 overflow-hidden">
+                            <div className="h-full shimmer-line opacity-[0.9]" />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </Card>
           </motion.div>
         </div>
@@ -189,3 +190,64 @@ export const CompositionShowcase: React.FC = () => {
     </section>
   );
 };
+
+/* Micro marks */
+function MicroMarkCode() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M15.5 17.2l4.3-5.2l-4.3-5.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8.5 6.8L4.2 12l4.3 5.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.8" />
+    </svg>
+  );
+}
+function MicroMarkDatabase() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M4 7c0 2.2 3.1 4 7 4s7-1.8 7-4s-3.1-4-7-4s-7 1.8-7 4z" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M4 7v10c0 2.2 3.1 4 7 4s7-1.8 7-4V7" stroke="currentColor" strokeWidth="1.8" opacity="0.75" />
+    </svg>
+  );
+}
+function MicroMarkRoute() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function MicroMarkLink() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M10 13a4.6 4.6 0 006.9.5l2.7-2.7a4.6 4.6 0 00-6.5-6.5l-1.3 1.3"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14 11a4.6 4.6 0 00-6.9-.5l-2.7 2.7a4.6 4.6 0 006.5 6.5l1.3-1.3"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.75"
+      />
+    </svg>
+  );
+}
+function MicroMarkCloud() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M8.7 18h8.3a3.6 3.6 0 00.5-7.2A4.9 4.9 0 008.2 9.7a3.8 3.8 0 00.5 8.3z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M12 12.8v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
+      <path d="M9.8 15l2.2-2.2L14.2 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.75" />
+    </svg>
+  );
+}

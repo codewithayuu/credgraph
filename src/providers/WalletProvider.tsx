@@ -1,19 +1,24 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { useWalletStore } from "@/store/walletStore";
 import { useCredentialStore } from "@/store/credentialStore";
+import { useGovernanceStore } from "@/store/governanceStore";
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { setPeraWallet, setAddress, setConnecting, setError } = useWalletStore();
-  const { loadMockData } = useCredentialStore();
+  const { setPeraWallet, setAddress } = useWalletStore();
+  const { loadMockData: loadCredentialData } = useCredentialStore();
+  const { loadMockData: loadGovernanceData } = useGovernanceStore();
 
+  // Load all mock data on mount
   useEffect(() => {
-    loadMockData();
-  }, [loadMockData]);
+    loadCredentialData();
+    loadGovernanceData();
+  }, [loadCredentialData, loadGovernanceData]);
 
+  // Initialize Pera Wallet
   useEffect(() => {
     const initWallet = async () => {
       try {

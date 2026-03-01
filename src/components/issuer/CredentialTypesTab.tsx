@@ -1,137 +1,61 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { useWallet } from "@/hooks/useWallet";
 import { useCredentialStore } from "@/store/credentialStore";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Modal } from "@/components/ui/Modal";
-import { CreateCredentialTypeForm } from "./CreateCredentialTypeForm";
-import { CATEGORY_MAP, TIER_MAP } from "@/lib/constants";
-import { formatTimestamp } from "@/lib/utils";
-import {
-  Plus,
-  FileStack,
-  Award,
-  Tag,
-  Layers,
-  Calendar,
-  FileCheck,
-  CheckCircle2,
-} from "lucide-react";
+import toast from "react-hot-toast";
 
-export const CredentialTypesTab: React.FC = () => {
-  const { address } = useWallet();
-  const { getCredentialTypesByIssuer } = useCredentialStore();
-  const [showCreateModal, setShowCreateModal] = useState(false);
+export function CredentialTypesTab() {
+  const { credentialTypes } = useCredentialStore();
 
-  const types = address ? getCredentialTypesByIssuer(address) : [];
+  const handleEdit = () => {
+    toast("Editing disabled in demo mode.", { icon: "🔒" });
+  };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-heading-lg font-bold text-white">Credential Types</h2>
-          <p className="text-body-sm text-dark-400 mt-1">
-            Define the types of credentials your institution issues
-          </p>
+          <h3 className="text-h2 font-semibold text-white">Credential Types</h3>
+          <p className="text-b3 text-surface-400 mt-1">Manage definitions of credentials you issue.</p>
         </div>
-        <Button
-          onClick={() => setShowCreateModal(true)}
-          icon={<Plus className="w-4 h-4" />}
-        >
-          New Type
-        </Button>
+        <button onClick={handleEdit} className="px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-void font-bold rounded-lg text-sm hover:brightness-110 transition-all">
+          Create New Type
+        </button>
       </div>
 
-      {types.length === 0 ? (
-        <EmptyState
-          icon={<FileStack className="w-8 h-8 text-dark-500" />}
-          title="No Credential Types Defined"
-          description="Create your first credential type to start issuing verifiable credentials to students."
-          action={
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              icon={<Plus className="w-4 h-4" />}
-              variant="outline"
-            >
-              Create First Type
-            </Button>
-          }
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {types.map((type, i) => {
-            const catConfig = CATEGORY_MAP[type.category];
-            const tierConfig = TIER_MAP[type.tier];
-            return (
-              <motion.div
-                key={type.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.08 }}
-              >
-                <Card variant="interactive" padding="md" className="h-full">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl ${catConfig?.bgColor || "bg-dark-800"} flex items-center justify-center`}>
-                        <Award className={`w-5 h-5 ${catConfig?.color || "text-dark-400"}`} />
-                      </div>
-                      <div>
-                        <h3 className="text-body-lg font-semibold text-white">{type.name}</h3>
-                        <span className="text-caption font-mono text-dark-500">{type.id}</span>
-                      </div>
-                    </div>
-                    <Badge
-                      variant={type.status === "active" ? "neon" : "default"}
-                      size="sm"
-                      dot
-                    >
-                      {type.status}
-                    </Badge>
-                  </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {credentialTypes.map((type, i) => (
+          <motion.div
+            key={type.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="p-5 rounded-2xl bg-surface-900 border border-surface-800 shadow-card flex flex-col h-full hover:border-surface-700 transition-colors"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div className="w-10 h-10 rounded-xl bg-surface-800 border border-surface-700 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-gold-400">
+                  <path d="M4 6V14C4 15.1046 4.89543 16 6 16H14C15.1046 16 16 15.1046 16 14V6C16 4.89543 15.1046 4 14 4H6C4.89543 4 4 4.89543 4 6Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                  <path d="M8 10L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M8 7L12 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </div>
+              <span className="text-micro font-medium px-2 py-0.5 rounded-md bg-neon-500/10 text-neon-400 border border-neon-500/20">
+                Active
+              </span>
+            </div>
 
-                  <p className="text-body-sm text-dark-400 mb-4 line-clamp-2">
-                    {type.description}
-                  </p>
+            <h4 className="text-b2 font-semibold text-white truncate">{type.name}</h4>
+            <p className="text-micro text-surface-400 mt-2 line-clamp-2 min-h-[36px]">{type.description}</p>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="azure" size="sm" icon={<Tag className="w-3 h-3" />}>
-                      {catConfig?.label || type.category}
-                    </Badge>
-                    <Badge variant="gold" size="sm" icon={<Layers className="w-3 h-3" />}>
-                      {tierConfig?.label || type.tier}
-                    </Badge>
-                    {type.evidenceRequired && (
-                      <Badge variant="electric" size="sm" icon={<FileCheck className="w-3 h-3" />}>
-                        Evidence Required
-                      </Badge>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-caption text-dark-500">
-                    <Calendar className="w-3 h-3" />
-                    Created {formatTimestamp(type.createdAt)}
-                  </div>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
-
-      <Modal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        title="Create Credential Type"
-        description="Define a new type of credential that your institution can issue"
-        size="lg"
-      >
-        <CreateCredentialTypeForm onClose={() => setShowCreateModal(false)} />
-      </Modal>
+            <div className="mt-auto pt-5 flex items-center justify-between border-t border-surface-800/60 mt-4">
+              <span className="text-micro text-surface-500 font-mono">ID: {type.id}</span>
+              <button onClick={handleEdit} className="text-micro text-gold-400 hover:text-gold-300 font-medium">Edit</button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
-};
+}

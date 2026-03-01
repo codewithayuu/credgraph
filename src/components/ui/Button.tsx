@@ -15,12 +15,49 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-  primary: "bg-gradient-gold text-void font-bold shadow-lg shadow-gold-500/15 hover:shadow-gold-500/30 hover:brightness-110 active:brightness-95",
-  secondary: "bg-surface-800 hover:bg-surface-700 text-surface-100 border border-surface-700/60 hover:border-surface-600",
-  ghost: "bg-transparent hover:bg-surface-800/60 text-surface-400 hover:text-surface-100",
-  danger: "bg-gradient-crimson text-white font-bold shadow-lg shadow-crimson-500/15 hover:shadow-crimson-500/25",
-  success: "bg-gradient-neon text-void font-bold shadow-lg shadow-neon-500/15 hover:shadow-neon-500/25",
-  outline: "bg-transparent border-2 border-gold-500/40 text-gold-400 hover:border-gold-400/70 hover:bg-gold-500/5",
+  primary: cn(
+    "text-void font-semibold",
+    "bg-gradient-gold",
+    "border border-gold-400/20",
+    "shadow-glow-gold",
+    "hover:brightness-[1.04] hover:shadow-glow-gold-lg",
+    "active:brightness-[0.98]",
+    // subtle top sheen
+    "before:absolute before:inset-0 before:rounded-[inherit] before:pointer-events-none",
+    "before:bg-[linear-gradient(180deg,rgba(255,255,255,0.20),transparent_55%)] before:opacity-35",
+    "hover:before:opacity-45 before:transition-opacity"
+  ),
+  secondary: cn(
+    "text-surface-100 font-semibold",
+    "bg-surface-800/70 hover:bg-surface-800",
+    "border border-surface-700/55 hover:border-surface-600/60",
+    "shadow-card"
+  ),
+  ghost: cn(
+    "text-surface-300 hover:text-surface-100 font-semibold",
+    "bg-transparent hover:bg-surface-800/55",
+    "border border-transparent"
+  ),
+  danger: cn(
+    "text-white font-semibold",
+    "bg-gradient-crimson",
+    "border border-crimson-400/20",
+    "shadow-glow-crimson",
+    "hover:brightness-[1.03]"
+  ),
+  success: cn(
+    "text-void font-semibold",
+    "bg-gradient-neon",
+    "border border-neon-400/18",
+    "shadow-glow-neon",
+    "hover:brightness-[1.03]"
+  ),
+  outline: cn(
+    "text-gold-300 font-semibold",
+    "bg-transparent",
+    "border border-gold-500/35 hover:border-gold-400/60",
+    "hover:bg-gold-500/5"
+  ),
 };
 
 const sizeClasses = {
@@ -43,26 +80,31 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
+  const isDisabled = disabled || loading;
+
   return (
     <motion.button
-      whileHover={{ scale: disabled || loading ? 1 : 1.015 }}
-      whileTap={{ scale: disabled || loading ? 1 : 0.985 }}
+      whileHover={isDisabled ? undefined : { y: -1, scale: 1.015 }}
+      whileTap={isDisabled ? undefined : { y: 0, scale: 0.985 }}
+      transition={{ type: "spring", stiffness: 500, damping: 34 }}
       className={cn(
-        "relative inline-flex items-center justify-center font-semibold transition-all duration-200",
+        "relative inline-flex items-center justify-center select-none",
+        "transition-[transform,filter,box-shadow,background-color,border-color] duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/30 focus-visible:ring-offset-2 focus-visible:ring-offset-void",
-        "disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none",
+        "disabled:opacity-45 disabled:cursor-not-allowed disabled:pointer-events-none",
+        "overflow-hidden",
         variantClasses[variant],
         sizeClasses[size],
         fullWidth && "w-full",
         className
       )}
-      disabled={disabled || loading}
+      disabled={isDisabled}
       {...(props as any)}
     >
       {loading && <Loader2 className="w-4 h-4 animate-spin" />}
       {!loading && icon && <span className="flex-shrink-0">{icon}</span>}
-      <span>{children}</span>
-      {!loading && iconRight && <span className="flex-shrink-0">{iconRight}</span>}
+      <span className="relative z-10">{children}</span>
+      {!loading && iconRight && <span className="flex-shrink-0 relative z-10">{iconRight}</span>}
     </motion.button>
   );
 };

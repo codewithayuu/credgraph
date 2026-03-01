@@ -1,165 +1,100 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { useWallet } from "@/hooks/useWallet";
 import { useCredentialStore } from "@/store/credentialStore";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Modal } from "@/components/ui/Modal";
-import { CreateSkillPathForm } from "./CreateSkillPathForm";
-import { formatTimestamp } from "@/lib/utils";
-import {
-  Plus,
-  GitBranch,
-  Crown,
-  ArrowRight,
-  Calendar,
-  CheckCircle2,
-  Layers,
-} from "lucide-react";
+import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
-export const SkillPathsTab: React.FC = () => {
-  const { address } = useWallet();
-  const { compositionRules, credentialTypes } = useCredentialStore();
-  const [showCreateModal, setShowCreateModal] = useState(false);
+export function SkillPathsTab() {
+  const { compositionRules } = useCredentialStore();
 
-  const issuerRules = compositionRules.filter(
-    (r) => r.definedBy === address
-  );
+  const handleEdit = () => {
+    toast("Editing disabled in demo mode.", { icon: "🔒" });
+  };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-heading-lg font-bold text-white">Skill Paths</h2>
-          <p className="text-body-sm text-dark-400 mt-1">
-            Define composition rules that combine micro-credentials into mastery certifications
-          </p>
+          <h3 className="text-h2 font-semibold text-white">Skill Paths (Mastery Rules)</h3>
+          <p className="text-b3 text-surface-400 mt-1">Define logic for composite credentials.</p>
         </div>
-        <Button
-          onClick={() => setShowCreateModal(true)}
-          icon={<Plus className="w-4 h-4" />}
-        >
-          New Skill Path
-        </Button>
+        <button onClick={handleEdit} className="px-4 py-2 bg-gradient-to-r from-gold-600 to-gold-500 text-void font-bold rounded-lg text-sm hover:brightness-110 transition-all">
+          New Path
+        </button>
       </div>
 
-      {issuerRules.length === 0 ? (
-        <EmptyState
-          icon={<GitBranch className="w-8 h-8 text-dark-500" />}
-          title="No Skill Paths Defined"
-          description="Create composition rules to automatically issue mastery credentials when students complete all required micro-credentials."
-          action={
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              icon={<Plus className="w-4 h-4" />}
-              variant="outline"
-            >
-              Create First Path
-            </Button>
-          }
-        />
-      ) : (
-        <div className="space-y-4">
-          {issuerRules.map((rule, i) => {
-            const requiredTypes = rule.requiredCredentialTypeIds.map((id) =>
-              credentialTypes.find((t) => t.id === id)
-            );
-            const compositeType = credentialTypes.find(
-              (t) => t.id === rule.compositeCredentialTypeId
-            );
+      <div className="space-y-6">
+        {compositionRules.map((rule, index) => (
+          <motion.div
+            key={rule.id}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="panel rounded-3xl border border-surface-800 p-6 md:p-8 relative overflow-hidden"
+          >
+            {/* Visual background element */}
+            <div className="absolute right-0 top-0 w-64 h-64 bg-gold-500/5 blur-3xl rounded-full" />
 
-            return (
-              <motion.div
-                key={rule.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-              >
-                <Card variant="highlighted" padding="md">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/15">
-                        <Crown className="w-6 h-6" />
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h4 className="text-h3 font-semibold text-white">{rule.name}</h4>
+                <p className="text-micro text-surface-400 mt-1 max-w-xl">{rule.description}</p>
+              </div>
+              <button onClick={handleEdit} className="px-3 py-1.5 rounded-lg border border-surface-700 text-surface-300 hover:text-white hover:bg-surface-800 text-micro font-medium transition-colors">
+                Edit Path
+              </button>
+            </div>
+
+            <div className="relative">
+              <h5 className="text-micro font-semibold text-surface-400 uppercase tracking-widest mb-4">Required Micro-Credentials</h5>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {rule.requiredCredentialTypes?.map((reqItem, i) => (
+                  <React.Fragment key={reqItem.id}>
+                    <div className="px-4 py-3 rounded-xl bg-surface-900 border border-surface-700 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-surface-800 flex items-center justify-center border border-surface-700 text-gold-400 text-micro font-bold">
+                        {i + 1}
                       </div>
                       <div>
-                        <h3 className="text-heading-md font-bold text-white">{rule.name}</h3>
-                        <span className="text-caption font-mono text-dark-500">{rule.id}</span>
+                        <p className="text-b3 font-medium text-white">{reqItem.name}</p>
+                        <p className="text-micro text-surface-500 font-mono mt-0.5">{reqItem.id}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="neon" size="sm" dot>
-                        {rule.status}
-                      </Badge>
-                      {rule.autoIssue && (
-                        <Badge variant="gold" size="sm">
-                          Auto-Issue
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  <p className="text-body-sm text-dark-400 mb-4">{rule.description}</p>
-
-                  <div className="mb-4">
-                    <p className="text-caption font-semibold text-dark-300 uppercase tracking-wider mb-2">
-                      Required Micro-Credentials ({rule.requiredCredentialTypeIds.length})
-                    </p>
-                    <div className="space-y-2">
-                      {requiredTypes.map((type) => (
-                        <div
-                          key={type?.id || Math.random()}
-                          className="flex items-center gap-3 p-3 rounded-lg bg-dark-800/30 border border-dark-700/20"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-brand-400 flex-shrink-0" />
-                          <span className="text-body-sm text-dark-200">
-                            {type?.name || "Unknown Type"}
-                          </span>
-                          <span className="text-caption font-mono text-dark-600 ml-auto">
-                            {type?.id}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {compositeType && (
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/15">
-                      <ArrowRight className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                      <div>
-                        <p className="text-body-sm font-medium text-amber-300">
-                          Composite: {compositeType.name}
-                        </p>
-                        <p className="text-caption text-dark-500">
-                          Auto-issued when all requirements are met
-                        </p>
+                    {i < (rule.requiredCredentialTypes?.length || 0) - 1 && (
+                      <div className="text-surface-600 px-1 hidden md:block">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </React.Fragment>
+                ))}
 
-                  <div className="flex items-center gap-1.5 text-caption text-dark-500 mt-4">
-                    <Calendar className="w-3 h-3" />
-                    Created {formatTimestamp(rule.createdAt)}
+                <div className="text-surface-600 px-2 hidden md:block">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+
+                <div className="px-5 py-4 rounded-xl bg-gradient-to-r from-gold-500/10 to-gold-600/10 border border-gold-500/30 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gold-400 flex items-center justify-center text-void">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 4L14 8L18 9L15 12L16 16L12 14L8 16L9 12L6 9L10 8L12 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </div>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
+                  <div>
+                    <span className="text-micro font-bold text-gold-400 uppercase tracking-wider block">Yields Mastery</span>
+                    <p className="text-b2 font-semibold text-white mt-0.5">{rule.name}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-      <Modal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        title="Create Skill Path"
-        description="Define which micro-credentials combine into a mastery certification"
-        size="lg"
-      >
-        <CreateSkillPathForm onClose={() => setShowCreateModal(false)} />
-      </Modal>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
-};
+}

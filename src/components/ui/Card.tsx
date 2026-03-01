@@ -24,16 +24,26 @@ const variants = {
 };
 
 export const Card: React.FC<CardProps> = ({
-  children, className, variant = "default", padding = "md", hover = false, onClick,
+  children,
+  className,
+  variant = "default",
+  padding = "md",
+  hover = false,
+  onClick,
 }) => {
+  const isInteractive = hover || variant === "interactive";
+
   return (
     <motion.div
-      whileHover={hover || variant === "interactive" ? { y: -3, transition: { duration: 0.25 } } : undefined}
+      whileHover={isInteractive ? { y: -3 } : undefined}
+      transition={isInteractive ? { type: "spring", stiffness: 420, damping: 32 } : undefined}
       className={cn(
-        "rounded-2xl transition-all duration-400",
+        "rounded-2xl",
+        "transition-[transform,box-shadow,border-color,background-color] duration-200",
         variants[variant],
         paddings[padding],
-        (hover || variant === "interactive") && "hover:shadow-card-hover hover:border-gold-500/15 cursor-pointer",
+        isInteractive && "hover:shadow-panel-hover hover:border-gold-500/14",
+        isInteractive && "cursor-pointer",
         className
       )}
       onClick={onClick}
@@ -51,9 +61,10 @@ export const CardHeader: React.FC<{ children: React.ReactNode; className?: strin
 );
 
 export const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <h3 className={cn("text-h2 text-white", className)}>{children}</h3>
+  <h3 className={cn("font-display text-h2 text-white", className)}>{children}</h3>
 );
 
-export const CardDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
-  <p className={cn("text-b2 text-surface-400 mt-1.5", className)}>{children}</p>
-);
+export const CardDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className,
+}) => <p className={cn("text-b2 text-surface-400 mt-1.5", className)}>{children}</p>;

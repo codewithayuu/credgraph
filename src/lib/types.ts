@@ -4,7 +4,8 @@ import React from "react";
 // CORE TYPES FOR CREDGRAPH
 // ============================================
 
-// Issuer Types
+// ─── Issuer Types ────────────────────────────
+
 export interface Issuer {
   address: string;
   name: string;
@@ -14,7 +15,11 @@ export interface Issuer {
   metadataUri?: string;
   description?: string;
   website?: string;
+  email?: string;
   logoUrl?: string;
+  credibilityScore?: number;
+  totalIssued?: number;
+  totalRevoked?: number;
 }
 
 export type IssuerType =
@@ -25,9 +30,66 @@ export type IssuerType =
   | "company"
   | "government";
 
-export type IssuerStatus = "active" | "suspended" | "revoked";
+export type IssuerStatus = "active" | "suspended" | "revoked" | "pending";
 
-// Credential Type Definitions
+// ─── Governance Types ────────────────────────
+
+export interface GovernanceApplication {
+  id: string;
+  applicantAddress: string;
+  institutionName: string;
+  institutionType: IssuerType;
+  email: string;
+  website: string;
+  description: string;
+  documentUri?: string;
+  documentHash?: string;
+  status: GovernanceApplicationStatus;
+  submittedAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
+  reviewNote?: string;
+  txId?: string;
+}
+
+export type GovernanceApplicationStatus =
+  | "pending"
+  | "under_review"
+  | "approved"
+  | "rejected"
+  | "suspended";
+
+export interface GovernanceAction {
+  id: string;
+  type: GovernanceActionType;
+  targetAddress: string;
+  targetName: string;
+  performedBy: string;
+  reason: string;
+  timestamp: number;
+  txId?: string;
+  applicationId?: string;
+}
+
+export type GovernanceActionType =
+  | "issuer_approved"
+  | "issuer_rejected"
+  | "issuer_suspended"
+  | "issuer_reinstated"
+  | "issuer_revoked"
+  | "application_submitted"
+  | "application_reviewed";
+
+export interface GovernanceStats {
+  totalIssuers: number;
+  activeIssuers: number;
+  pendingApplications: number;
+  suspendedIssuers: number;
+  totalActions: number;
+}
+
+// ─── Credential Type Definitions ─────────────
+
 export interface CredentialType {
   id: string;
   name: string;
@@ -41,6 +103,7 @@ export interface CredentialType {
   status: "active" | "inactive";
   metadataUri?: string;
   badgeImageUrl?: string;
+  expiryDuration?: number; // seconds — 0 or undefined = never expires
 }
 
 export type CredentialCategory =
@@ -57,7 +120,8 @@ export type CredentialTier =
   | "advanced"
   | "expert";
 
-// Credential (Issued Instance)
+// ─── Credential (Issued Instance) ────────────
+
 export interface Credential {
   id: string;
   asaId: number;
@@ -77,11 +141,80 @@ export interface Credential {
   txId?: string;
   metadataUri?: string;
   badgeImageUrl?: string;
+  expiresAt?: number; // unix timestamp — undefined = never expires
+  claimStatus?: ClaimStatus;
+  claimedAt?: number;
+  privacyLevel?: PrivacyLevel;
 }
 
-export type CredentialStatus = "active" | "revoked" | "pending";
+export type CredentialStatus = "active" | "revoked" | "pending" | "expired";
 
-// Composition Rule
+export type ClaimStatus = "escrow" | "claimable" | "claimed" | "expired_unclaimed";
+
+export type PrivacyLevel = "public" | "private" | "selective";
+
+// ─── Claim Flow Types ────────────────────────
+
+export interface ClaimableCredential {
+  credential: Credential;
+  issuerInfo: Issuer;
+  credentialType: CredentialType;
+  requiresOptIn: boolean;
+  estimatedGasCost: number;
+  expiresAt?: number;
+}
+
+export interface ClaimResult {
+  success: boolean;
+  credentialId: string;
+  txId?: string;
+  error?: string;
+}
+
+// ─── Batch Issuance Types ────────────────────
+
+export interface BatchIssueRow {
+  recipientAddress: string;
+  credentialTypeId: string;
+  evidenceHash?: string;
+  status: BatchRowStatus;
+  error?: string;
+  credentialId?: string;
+  asaId?: number;
+  txId?: string;
+}
+
+export type BatchRowStatus = "pending" | "processing" | "success" | "failed" | "skipped";
+
+export interface BatchIssueJob {
+  id: string;
+  issuerAddress: string;
+  totalRows: number;
+  processedRows: number;
+  successCount: number;
+  failedCount: number;
+  status: "preparing" | "processing" | "completed" | "cancelled";
+  rows: BatchIssueRow[];
+  startedAt: number;
+  completedAt?: number;
+}
+
+// ─── Evidence Types ──────────────────────────
+
+export interface EvidenceRecord {
+  hash: string;
+  uri?: string;
+  fileName?: string;
+  fileType?: string;
+  fileSize?: number;
+  uploadedAt: number;
+  ipfsCid?: string;
+  verified?: boolean;
+  verifiedAt?: number;
+}
+
+// ─── Composition Rule ────────────────────────
+
 export interface CompositionRule {
   id: string;
   name: string;
@@ -100,7 +233,8 @@ export interface CompositionRule {
 
 export type CompositionType = "all_required" | "n_of_m" | "tiered";
 
-// Student Progress
+// ─── Student Progress ────────────────────────
+
 export interface CompositionProgress {
   rule: CompositionRule;
   earnedTypeIds: string[];
@@ -111,7 +245,8 @@ export interface CompositionProgress {
   compositeCredential?: Credential;
 }
 
-// Verification Result
+// ─── Verification Result ─────────────────────
+
 export interface VerificationResult {
   walletAddress: string;
   credentials: VerifiedCredential[];
@@ -123,6 +258,8 @@ export interface VerifiedCredential extends Credential {
   issuerVerified: boolean;
   issuerInfo?: Issuer;
   isOriginalRecipient: boolean;
+  isExpired?: boolean;
+  expiryStatus?: "active" | "expiring_soon" | "expired";
 }
 
 export interface VerifiedComposite {
@@ -136,11 +273,25 @@ export interface VerificationSummary {
   totalCredentials: number;
   activeCredentials: number;
   revokedCredentials: number;
+  expiredCredentials: number;
   compositeCredentials: number;
   allIssuersVerified: boolean;
 }
 
-// Wallet State
+// ─── Privacy / Selective Disclosure ──────────
+
+export interface ShareLink {
+  id: string;
+  ownerAddress: string;
+  credentialIds: string[];
+  createdAt: number;
+  expiresAt?: number;
+  accessCount: number;
+  label?: string;
+}
+
+// ─── Wallet State ────────────────────────────
+
 export interface WalletState {
   address: string | null;
   isConnected: boolean;
@@ -148,7 +299,8 @@ export interface WalletState {
   error: string | null;
 }
 
-// Transaction Result
+// ─── Transaction Result ──────────────────────
+
 export interface TransactionResult {
   success: boolean;
   txId?: string;
@@ -157,22 +309,25 @@ export interface TransactionResult {
   error?: string;
 }
 
-// API Response Types
+// ─── API Response Types ──────────────────────
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
 }
 
-// Tab Configuration
+// ─── Tab Configuration ───────────────────────
+
 export interface TabConfig {
   id: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon?: React.ReactNode;
   count?: number;
 }
 
-// Table Column
+// ─── Table Column ────────────────────────────
+
 export interface TableColumn<T> {
   key: keyof T | string;
   label: string;
@@ -181,7 +336,8 @@ export interface TableColumn<T> {
   width?: string;
 }
 
-// Form State
+// ─── Form State ──────────────────────────────
+
 export interface FormField {
   name: string;
   label: string;
@@ -192,7 +348,8 @@ export interface FormField {
   validation?: (value: string) => string | null;
 }
 
-// Notification
+// ─── Notification ────────────────────────────
+
 export interface Notification {
   id: string;
   type: "success" | "error" | "info" | "warning";
@@ -200,4 +357,21 @@ export interface Notification {
   message: string;
   timestamp: number;
   read: boolean;
+}
+
+// ─── Expiry Helpers ──────────────────────────
+
+export type ExpiryStatus = "active" | "expiring_soon" | "expired" | "never_expires";
+
+// ─── Wallet Recovery ─────────────────────────
+
+export interface RecoveryRequest {
+  id: string;
+  oldAddress: string;
+  newAddress: string;
+  identityProof: string; // hash of student ID or email
+  status: "pending" | "approved" | "rejected";
+  submittedAt: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
 }

@@ -7,11 +7,15 @@ import {
   Issuer,
   CompositionRule,
   VerificationSummary,
+  ExpiryStatus,
 } from "@/lib/types";
+import { getExpiryStatus } from "@/lib/utils";
 
 interface VerifiedCredential extends Credential {
   issuerVerified: boolean;
   issuerInfo?: Issuer;
+  isExpired: boolean;
+  expiryStatus: ExpiryStatus;
 }
 
 interface CompositeGroup {
@@ -20,6 +24,7 @@ interface CompositeGroup {
   rule?: CompositionRule;
   allValid: boolean;
   hasRevokedComponent: boolean;
+  hasExpiredComponent: boolean;
 }
 
 interface VerificationState {
@@ -36,7 +41,6 @@ export function useVerification(walletAddress: string) {
     getIssuerByAddress,
     isAuthorizedIssuer,
     compositionRules,
-    credentialTypes,
   } = useCredentialStore();
 
   const [state, setState] = useState<VerificationState>({
@@ -48,6 +52,7 @@ export function useVerification(walletAddress: string) {
       totalCredentials: 0,
       activeCredentials: 0,
       revokedCredentials: 0,
+      expiredCredentials: 0,
       compositeCredentials: 0,
       allIssuersVerified: true,
     },
@@ -56,11 +61,23 @@ export function useVerification(walletAddress: string) {
   const verify = useCallback(() => {
     const rawCredentials = getCredentialsByRecipient(walletAddress);
 
-    const verified: VerifiedCredential[] = rawCredentials.map((cred) => ({
-      ...cred,
-      issuerVerified: isAuthorizedIssuer(cred.issuerAddress),
-      issuerInfo: getIssuerByAddress(cred.issuerAddress),
-    }));
+    // Only show claimed credentials in verification
+    const claimedCredentials = rawCredentials.filter(
+      (c) => c.claimStatus === "claimed" || c.claimStatus === undefined
+    );
+
+    const verified: VerifiedCredential[] = claimedCredentials.map((cred) => {
+      const expiryStatus = getExpiryStatus(cred.expiresAt);
+      const isExpired = expiryStatus === "expired";
+
+      return {
+        ...cred,
+        issuerVerified: isAuthorizedIssuer(cred.issuerAddress),
+        issuerInfo: getIssuerByAddress(cred.issuerAddress),
+        isExpired,
+        expiryStatus,
+      };
+    });
 
     const compositeCredentials = verified.filter(
       (c) => c.category === "certification" && c.tier === "expert"
@@ -75,21 +92,36 @@ export function useVerification(walletAddress: string) {
       );
       const components = rule
         ? rule.requiredCredentialTypeIds
-            .map((tid) => verified.find((v) => v.credentialTypeId === tid))
-            .filter(Boolean) as VerifiedCredential[]
+          .map((tid) => verified.find((v) => v.credentialTypeId === tid))
+          .filter(Boolean) as VerifiedCredential[]
         : [];
       const hasRevokedComponent = components.some((c) => c.status === "revoked");
+      const hasExpiredComponent = components.some((c) => c.isExpired);
       const allValid = components.every(
-        (c) => c.status === "active" && c.issuerVerified
+        (c) => c.status === "active" && c.issuerVerified && !c.isExpired
       );
 
-      return { credential: comp, components, rule, allValid, hasRevokedComponent };
+      return {
+        credential: comp,
+        components,
+        rule,
+        allValid,
+        hasRevokedComponent,
+        hasExpiredComponent,
+      };
     });
+
+    const activeCount = verified.filter(
+      (c) => c.status === "active" && !c.isExpired
+    ).length;
+    const revokedCount = verified.filter((c) => c.status === "revoked").length;
+    const expiredCount = verified.filter((c) => c.isExpired).length;
 
     const summary: VerificationSummary = {
       totalCredentials: verified.length,
-      activeCredentials: verified.filter((c) => c.status === "active").length,
-      revokedCredentials: verified.filter((c) => c.status === "revoked").length,
+      activeCredentials: activeCount,
+      revokedCredentials: revokedCount,
+      expiredCredentials: expiredCount,
       compositeCredentials: compositeGroups.length,
       allIssuersVerified: verified.every((c) => c.issuerVerified),
     };

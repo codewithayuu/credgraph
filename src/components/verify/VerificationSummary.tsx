@@ -1,94 +1,100 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
-import { VerificationSummary as SummaryType } from "@/lib/types";
-import {
-  Award,
-  CheckCircle2,
-  XCircle,
-  Crown,
-  ShieldCheck,
-  ShieldX,
-} from "lucide-react";
+import { StatusIndicator } from "@/components/ui/StatusIndicator";
+
+interface SummaryData {
+  totalCredentials: number;
+  activeCredentials: number;
+  revokedCredentials: number;
+  compositeCredentials: number;
+  allIssuersVerified: boolean;
+}
 
 interface Props {
-  summary: SummaryType;
+  summary: SummaryData;
 }
 
 export const VerificationSummary: React.FC<Props> = ({ summary }) => {
-  const stats = [
-    {
-      icon: <Award className="w-5 h-5" />,
-      value: summary.totalCredentials,
-      label: "Total Credentials",
-      color: "text-brand-400",
-      bg: "bg-brand-500/10",
-      border: "border-brand-500/15",
-    },
-    {
-      icon: <CheckCircle2 className="w-5 h-5" />,
-      value: summary.activeCredentials,
-      label: "Active",
-      color: "text-accent-400",
-      bg: "bg-accent-500/10",
-      border: "border-accent-500/15",
-    },
-    {
-      icon: <XCircle className="w-5 h-5" />,
-      value: summary.revokedCredentials,
-      label: "Revoked",
-      color: summary.revokedCredentials > 0 ? "text-red-400" : "text-dark-500",
-      bg: summary.revokedCredentials > 0 ? "bg-red-500/10" : "bg-dark-800/40",
-      border: summary.revokedCredentials > 0 ? "border-red-500/15" : "border-dark-700/30",
-    },
-    {
-      icon: <Crown className="w-5 h-5" />,
-      value: summary.compositeCredentials,
-      label: "Composite",
-      color: summary.compositeCredentials > 0 ? "text-amber-400" : "text-dark-500",
-      bg: summary.compositeCredentials > 0 ? "bg-amber-500/10" : "bg-dark-800/40",
-      border: summary.compositeCredentials > 0 ? "border-amber-500/15" : "border-dark-700/30",
-    },
-  ];
-
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {stats.map((stat, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, delay: i * 0.08 }}
-          className={`p-4 rounded-xl ${stat.bg} border ${stat.border} text-center`}
-        >
-          <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${stat.bg} ${stat.color} mb-2`}>
-            {stat.icon}
-          </div>
-          <div className={`text-display-sm font-black ${stat.color}`}>{stat.value}</div>
-          <div className="text-caption font-medium text-dark-400">{stat.label}</div>
-        </motion.div>
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <StatBox
+        label="Verified micros"
+        value={String(summary.activeCredentials)}
+        icon={<MarkBadge className="text-electric-300" />}
+        description="Active micro-credentials"
+      />
+      <StatBox
+        label="Mastery proofs"
+        value={String(summary.compositeCredentials)}
+        icon={<MarkCrown className="text-gold-300" />}
+        description="Composite credentials"
+      />
+      <StatBox
+        label="Risk profile"
+        value={summary.revokedCredentials > 0 ? String(summary.revokedCredentials) : "Clean"}
+        icon={<MarkShield className={summary.revokedCredentials > 0 ? "text-crimson-400" : "text-moss-400"} />}
+        description={summary.revokedCredentials > 0 ? "Revoked credentials found" : "No revocations on record"}
+      />
 
-      <div className="col-span-2 md:col-span-4 mt-1">
-        <div className={`flex items-center justify-center gap-2 p-3 rounded-xl border ${
-          summary.allIssuersVerified
-            ? "bg-accent-500/5 border-accent-500/15"
-            : "bg-amber-500/5 border-amber-500/15"
-        }`}>
-          {summary.allIssuersVerified ? (
-            <>
-              <ShieldCheck className="w-4 h-4 text-accent-400" />
-              <span className="text-body-sm font-semibold text-accent-300">All issuers verified in CredGraph Registry</span>
-            </>
-          ) : (
-            <>
-              <ShieldX className="w-4 h-4 text-amber-400" />
-              <span className="text-body-sm font-semibold text-amber-300">Some issuers could not be verified</span>
-            </>
-          )}
+      <div className="panel-elevated rounded-3xl p-5 border border-surface-800/40 bg-surface-900/40">
+        <div className="flex flex-col h-full justify-between">
+          <div>
+            <p className="text-micro uppercase tracking-[0.22em] text-surface-500">Issuer trust</p>
+            <h4 className="mt-3 text-b2 font-semibold text-white leading-tight">
+              {summary.allIssuersVerified ? "Authorized network" : "Mixed authority"}
+            </h4>
+          </div>
+          <div className="mt-4 pt-4 border-t border-surface-800/30 flex items-center justify-between">
+            <StatusIndicator status={summary.allIssuersVerified ? "verified" : "unverified"} size="sm" />
+            <span className="text-cap text-surface-500">Registry audit</span>
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+function StatBox({ label, value, icon, description }: { label: string; value: string; icon: React.ReactNode; description: string }) {
+  return (
+    <div className="panel rounded-3xl p-5 border border-surface-800/55 bg-surface-900/35">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-micro uppercase tracking-[0.22em] text-surface-500">{label}</p>
+          <h3 className="mt-2 text-h1 font-display text-white">{value}</h3>
+        </div>
+        <div className="w-10 h-10 rounded-2xl bg-surface-800/20 border border-surface-700/30 flex items-center justify-center">
+          {icon}
+        </div>
+      </div>
+      <p className="mt-4 text-cap text-surface-500 leading-snug">{description}</p>
+    </div>
+  );
+}
+
+/* Marks */
+function MarkBadge({ className }: { className?: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className={className}>
+      <path d="M12 3.5l7 4v8c0 4-3 6.8-7 8c-4-1.2-7-4-7-8v-8l7-4Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
+      <path d="M9 12.2l2 2l4-4.2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MarkCrown({ className }: { className?: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className={className}>
+      <path d="M6.2 9.2l3.1 3.2L12 8l2.7 4.4l3.1-3.2v8.6H6.2V9.2Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
+      <path d="M6.2 17.8h11.6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" opacity="0.7" />
+    </svg>
+  );
+}
+
+function MarkShield({ className }: { className?: string }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className={className}>
+      <path d="M12 3l8 4.6v6.1c0 4.7-3.2 7.9-8 9.3c-4.8-1.4-8-4.6-8-9.3V7.6L12 3z" stroke="currentColor" strokeWidth="2.0" strokeLinejoin="round" />
+    </svg>
+  );
+}

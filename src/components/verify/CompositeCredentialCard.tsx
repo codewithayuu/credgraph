@@ -2,24 +2,14 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { StatusIndicator } from "@/components/ui/StatusIndicator";
 import { WalletAddress } from "@/components/ui/WalletAddress";
-import { Credential, Issuer, CompositionRule } from "@/lib/types";
-import { CREDENTIAL_CATEGORIES } from "@/lib/constants";
+
+import type { Credential, CompositionRule, Issuer } from "@/lib/types";
 import { formatTimestamp, getExplorerUrl } from "@/lib/utils";
-import {
-  Crown,
-  ChevronDown,
-  CheckCircle2,
-  XCircle,
-  ExternalLink,
-  Building2,
-  Calendar,
-  ShieldCheck,
-  Layers,
-} from "lucide-react";
 
 interface Props {
   credential: Credential;
@@ -29,6 +19,8 @@ interface Props {
   rule?: CompositionRule;
 }
 
+const ease = [0.16, 1, 0.3, 1] as const;
+
 export const CompositeCredentialCard: React.FC<Props> = ({
   credential,
   components,
@@ -36,155 +28,129 @@ export const CompositeCredentialCard: React.FC<Props> = ({
   issuerInfo,
   rule,
 }) => {
-  const [expanded, setExpanded] = useState(true);
-  const allComponentsActive = components.every((c) => c.status === "active");
-  const hasRevokedComponent = components.some((c) => c.status === "revoked");
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <Card
-      variant="glass"
-      padding="none"
-      className={`overflow-hidden border-amber-500/15 ${
-        hasRevokedComponent ? "border-red-500/15" : ""
-      }`}
-    >
-      <div className="p-6 bg-gradient-to-r from-amber-500/5 to-orange-500/3">
-        <div
-          className="flex items-center gap-4 cursor-pointer"
-          onClick={() => setExpanded(!expanded)}
-        >
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-xl shadow-amber-500/20 flex-shrink-0">
-            <Crown className="w-7 h-7" />
-          </div>
+    <Card variant="golden" padding="none" className="overflow-hidden">
+      <div
+        className="p-5 sm:p-6 cursor-pointer group"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-500/14 text-gold-300 shadow-glow-gold flex items-center justify-center flex-shrink-0">
+              <MarkCrown />
+            </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-1">
-              <h3 className="text-heading-lg font-bold text-white">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <StatusIndicator status="active" size="sm" label="Composite mastery" />
+                <Badge variant="gold" size="sm" dot>Verified proof</Badge>
+              </div>
+              <h3 className="font-display text-h1 text-white leading-tight group-hover:text-gold-200 transition-colors">
                 {credential.credentialTypeName}
               </h3>
-              <Badge variant="warning" size="md">Composite</Badge>
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-body-sm text-dark-400">{credential.issuerName}</span>
-              {issuerVerified && <StatusIndicator status="verified" size="sm" label="Verified Issuer" />}
+              <p className="text-b3 text-surface-400 mt-1">
+                Issued by {credential.issuerName} • {formatTimestamp(credential.issuedAt)}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <StatusIndicator
-              status={hasRevokedComponent ? "warning" : credential.status === "active" ? "active" : "revoked"}
-              label={hasRevokedComponent ? "Component Revoked" : credential.status === "active" ? "Active" : "Revoked"}
-              size="md"
-            />
-            <motion.div
-              animate={{ rotate: expanded ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ChevronDown className="w-5 h-5 text-dark-500" />
-            </motion.div>
-          </div>
-        </div>
+          <div className="flex items-center justify-between md:justify-end gap-6">
+            <div className="text-right hidden sm:block">
+              <p className="text-micro uppercase tracking-[0.22em] text-surface-500">Components</p>
+              <p className="text-b2 font-semibold text-white mt-1">
+                {components.length} / {rule?.requiredCredentialTypeIds.length || "?"}
+              </p>
+            </div>
 
-        <div className="mt-4 flex items-center gap-4 text-body-sm text-dark-400">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5" />
-            Issued {formatTimestamp(credential.issuedAt)}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5" />
-            {components.length} components verified
+            <div className={["w-10 h-10 rounded-2xl border border-surface-800 bg-surface-900/50 flex items-center justify-center text-surface-400 group-hover:text-white group-hover:border-surface-700 transition-all", isExpanded ? "rotate-180" : ""].join(" ")}>
+              <MarkChevron />
+            </div>
           </div>
         </div>
       </div>
 
       <AnimatePresence>
-        {expanded && (
+        {isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
+            transition={{ duration: 0.4, ease }}
           >
-            <div className="px-6 pb-6 border-t border-dark-700/20 pt-4">
-              <p className="text-caption font-semibold text-dark-300 uppercase tracking-wider mb-3">
-                Component Credentials ({components.length}/{rule?.requiredCredentialTypeIds.length || components.length})
-              </p>
+            <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-surface-800/55">
+              <div className="grid lg:grid-cols-2 gap-8 py-4">
 
-              <div className="space-y-2 mb-4">
-                {components.map((comp, i) => {
-                  const compCatConfig = CREDENTIAL_CATEGORIES[comp.category];
-                  const isCompRevoked = comp.status === "revoked";
+                <div className="space-y-5">
+                  <div>
+                    <h4 className="text-micro uppercase tracking-[0.22em] text-surface-500 mb-4">Proof metadata</h4>
+                    <div className="space-y-2">
+                      <DetailRow label="Mastery ID" value={credential.id} mono />
+                      <DetailRow label="ASA ID" value={String(credential.asaId)} mono />
+                      <DetailRow label="Tx Reference" value={credential.txId || "n/a"} mono />
+                    </div>
+                  </div>
 
-                  return (
-                    <motion.div
-                      key={comp.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: i * 0.08 }}
-                      className={`flex items-center gap-3 p-3 rounded-xl border ${
-                        isCompRevoked
-                          ? "bg-red-500/3 border-red-500/10"
-                          : "bg-dark-800/20 border-dark-700/15"
-                      }`}
-                    >
-                      {isCompRevoked ? (
-                        <XCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                      ) : (
-                        <CheckCircle2 className="w-5 h-5 text-accent-400 flex-shrink-0" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <span className={`text-body-sm font-medium ${isCompRevoked ? "text-red-300 line-through" : "text-dark-100"}`}>
-                          {comp.credentialTypeName}
-                        </span>
-                        <span className="text-caption text-dark-500 block">{comp.issuerName}</span>
+                  <div>
+                    <h4 className="text-micro uppercase tracking-[0.22em] text-surface-500 mb-4">Issuer authority</h4>
+                    <div className="panel rounded-2xl border border-surface-800/55 bg-surface-900/35 p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="text-b2 font-semibold text-white truncate">{issuerInfo?.name || credential.issuerName}</p>
+                          <div className="mt-1">
+                            <WalletAddress address={credential.issuerAddress} showCopy truncateChars={6} />
+                          </div>
+                        </div>
+                        <StatusIndicator status={issuerVerified ? "verified" : "unverified"} size="sm" />
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Badge variant={isCompRevoked ? "danger" : "success"} size="sm">
-                          {isCompRevoked ? "Revoked" : "Verified"}
-                        </Badge>
-                        {comp.txId && (
-                          <a
-                            href={getExplorerUrl("transaction", comp.txId)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-dark-500 hover:text-brand-400 transition-colors"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        )}
+                    </div>
+                  </div>
+                </div>
+
+
+                <div>
+                  <h4 className="text-micro uppercase tracking-[0.22em] text-surface-500 mb-4">Composite structure</h4>
+                  <div className="space-y-2">
+                    {components.map((comp) => (
+                      <div key={comp.id} className="flex items-center justify-between gap-4 p-3 rounded-2xl border border-surface-800/40 bg-surface-900/20">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-electric-500/10 border border-electric-500/14 text-electric-300 flex items-center justify-center flex-shrink-0">
+                            <MarkBadge />
+                          </div>
+                          <p className="text-b3 font-medium text-surface-200 truncate">{comp.credentialTypeName}</p>
+                        </div>
+                        <StatusIndicator status="active" size="sm" />
                       </div>
-                    </motion.div>
-                  );
-                })}
+                    ))}
+                    {rule && components.length < rule.requiredCredentialTypeIds.length && (
+                      <div className="p-3 rounded-2xl border border-surface-800/40 border-dashed bg-surface-900/10 opacity-50">
+                        <p className="text-b3 text-surface-500 text-center">Incomplete requirements</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {hasRevokedComponent && (
-                <div className="p-3 rounded-xl bg-red-500/5 border border-red-500/10 mb-4">
-                  <div className="flex items-center gap-2">
-                    <XCircle className="w-4 h-4 text-red-400" />
-                    <span className="text-body-sm font-semibold text-red-300">
-                      Component Revoked — Composite Requires Review
-                    </span>
-                  </div>
-                  <p className="text-caption text-dark-500 mt-1">
-                    One or more component credentials have been revoked. This composite credential may no longer be valid.
-                  </p>
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                {credential.txId && (
-                  <a
-                    href={getExplorerUrl("transaction", credential.txId)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dark-700/50 text-body-sm text-dark-300 hover:text-amber-400 hover:border-amber-500/30 transition-all"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    View Composite on Explorer
-                  </a>
-                )}
+              <div className="mt-4 flex flex-col sm:flex-row gap-3 pt-6 border-t border-surface-800/30">
+                <a
+                  href={getExplorerUrl("asset", credential.asaId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="panel rounded-2xl border border-surface-800/55 px-4 py-2.5 text-b3 text-surface-300 hover:text-gold-300 hover:border-gold-500/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <MarkExplorer />
+                  Inspect Mastery ASA
+                </a>
+                <a
+                  href={getExplorerUrl("transaction", credential.txId || "")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="panel rounded-2xl border border-surface-800/55 px-4 py-2.5 text-b3 text-surface-300 hover:text-gold-300 hover:border-gold-500/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <MarkExplorer />
+                  View proof transaction
+                </a>
               </div>
             </div>
           </motion.div>
@@ -193,3 +159,51 @@ export const CompositeCredentialCard: React.FC<Props> = ({
     </Card>
   );
 };
+
+function DetailRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2 border-b border-surface-800/30 last:border-0">
+      <span className="text-b3 text-surface-500">{label}</span>
+      <span className={[
+        "text-b3 text-surface-300 truncate max-w-[60%] text-right",
+        mono ? "font-mono" : ""
+      ].join(" ")}>{value}</span>
+    </div>
+  );
+}
+
+/* Marks */
+function MarkCrown() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M6.2 9.2l3.1 3.2L12 8l2.7 4.4l3.1-3.2v8.6H6.2V9.2Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
+      <path d="M6.2 17.8h11.6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" opacity="0.7" />
+    </svg>
+  );
+}
+
+function MarkBadge() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M12 3.5l7 4v8c0 4-3 6.8-7 8c-4-1.2-7-4-7-8v-8l7-4Z" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" opacity="0.85" />
+      <path d="M9 12.2l2 2l4-4.2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MarkChevron() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MarkExplorer() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="text-current">
+      <path d="M10 6h8v8" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18 6l-9.5 9.5" stroke="currentColor" strokeWidth="2.0" strokeLinecap="round" />
+    </svg>
+  );
+}

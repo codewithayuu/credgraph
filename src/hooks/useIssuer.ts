@@ -12,6 +12,7 @@ export function useIssuer() {
     getCredentialTypesByIssuer,
     getCredentialsByIssuer,
     compositionRules,
+    getBatchJobs,
   } = useCredentialStore();
 
   const isAuthorized = useMemo(
@@ -39,15 +40,41 @@ export function useIssuer() {
     [compositionRules, address]
   );
 
+  const batchJobs = useMemo(
+    () => (address ? getBatchJobs(address) : []),
+    [address, getBatchJobs]
+  );
+
   const stats = useMemo(() => {
+    const now = Math.floor(Date.now() / 1000);
     const total = issuedCredentials.length;
-    const active = issuedCredentials.filter((c) => c.status === "active").length;
-    const revoked = issuedCredentials.filter((c) => c.status === "revoked").length;
+    const active = issuedCredentials.filter(
+      (c) => c.status === "active" && (!c.expiresAt || c.expiresAt > now)
+    ).length;
+    const revoked = issuedCredentials.filter(
+      (c) => c.status === "revoked"
+    ).length;
+    const pending = issuedCredentials.filter(
+      (c) => c.claimStatus === "claimable"
+    ).length;
+    const expired = issuedCredentials.filter(
+      (c) => c.expiresAt && c.expiresAt <= now
+    ).length;
     const typeCount = credentialTypes.length;
     const pathCount = issuerRules.length;
+    const batchCount = batchJobs.length;
 
-    return { total, active, revoked, typeCount, pathCount };
-  }, [issuedCredentials, credentialTypes, issuerRules]);
+    return {
+      total,
+      active,
+      revoked,
+      pending,
+      expired,
+      typeCount,
+      pathCount,
+      batchCount,
+    };
+  }, [issuedCredentials, credentialTypes, issuerRules, batchJobs]);
 
   return {
     address,
@@ -57,6 +84,7 @@ export function useIssuer() {
     credentialTypes,
     issuedCredentials,
     issuerRules,
+    batchJobs,
     stats,
   };
 }

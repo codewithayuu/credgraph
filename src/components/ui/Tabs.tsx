@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useId } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -14,82 +14,90 @@ interface Tab {
 interface TabsProps {
   tabs: Tab[];
   activeTab: string;
-  onTabChange: (tabId: string) => void;
+  onTabChange: (id: string) => void;
   className?: string;
-  variant?: "default" | "pills" | "underline";
 }
 
-export const Tabs: React.FC<TabsProps> = ({
-  tabs,
-  activeTab,
-  onTabChange,
-  className,
-  variant = "default",
-}) => {
+export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange, className }) => {
+  const uid = useId();
+
   return (
     <div
       className={cn(
-        "flex gap-1",
-        variant === "default" && "bg-dark-900/60 p-1 rounded-xl border border-dark-700/50",
-        variant === "underline" && "border-b border-dark-700/50 gap-0",
+        "panel rounded-2xl border border-surface-800/50",
+        "p-1.5",
+        "overflow-x-auto",
+        "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         className
       )}
     >
-      {tabs.map((tab) => {
-        const isActive = tab.id === activeTab;
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={cn(
-              "relative flex items-center gap-2 px-4 py-2.5 text-body-sm font-medium transition-all duration-300 whitespace-nowrap",
-              variant === "default" && "rounded-lg",
-              variant === "pills" && "rounded-full",
-              variant === "underline" && "px-5 py-3 rounded-none",
-              isActive
-                ? variant === "underline"
-                  ? "text-brand-400"
-                  : "text-white"
-                : "text-dark-400 hover:text-dark-200"
-            )}
-          >
-            {isActive && variant !== "underline" && (
-              <motion.div
-                layoutId="activeTab"
-                className={cn(
-                  "absolute inset-0",
-                  variant === "default" && "bg-brand-600/20 border border-brand-500/30 rounded-lg",
-                  variant === "pills" && "bg-brand-600/20 border border-brand-500/30 rounded-full"
-                )}
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
-            {isActive && variant === "underline" && (
-              <motion.div
-                layoutId="activeTabUnderline"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-400"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-2">
-              {tab.icon}
-              {tab.label}
-              {tab.count !== undefined && (
-                <span
-                  className={cn(
-                    "px-1.5 py-0.5 text-[10px] font-bold rounded-full",
-                    isActive
-                      ? "bg-brand-500/30 text-brand-300"
-                      : "bg-dark-700 text-dark-400"
-                  )}
-                >
-                  {tab.count}
-                </span>
+      <div className="flex gap-1 min-w-max">
+        {tabs.map((tab) => {
+          const active = tab.id === activeTab;
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={cn(
+                "relative isolate",
+                "flex items-center gap-2",
+                "px-4 py-2.5 rounded-xl whitespace-nowrap",
+                "text-b3 font-semibold",
+                "transition-[color,transform] duration-200",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/25 focus-visible:ring-offset-2 focus-visible:ring-offset-void",
+                active ? "text-surface-100" : "text-surface-400 hover:text-surface-200"
               )}
-            </span>
-          </button>
-        );
-      })}
+            >
+              {active && (
+                <>
+                  <motion.div
+                    layoutId={`tabActive-${uid}`}
+                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-gold-500/12 via-electric-500/8 to-transparent border border-white/8"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                  <motion.div
+                    layoutId={`tabActiveRail-${uid}`}
+                    className="absolute left-2 right-2 bottom-1 h-px rounded-full bg-gradient-to-r from-transparent via-gold-400/70 to-transparent"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                </>
+              )}
+
+              <span className="relative z-10 flex items-center gap-2">
+                {tab.icon && (
+                  <span
+                    className={cn(
+                      "w-8 h-8 rounded-xl flex items-center justify-center border",
+                      active
+                        ? "bg-gold-500/10 border-gold-500/14 text-gold-300"
+                        : "bg-surface-900/35 border-white/6 text-surface-400"
+                    )}
+                  >
+                    <span className="[&>svg]:w-4 [&>svg]:h-4">{tab.icon}</span>
+                  </span>
+                )}
+
+                <span>{tab.label}</span>
+
+                {tab.count !== undefined && (
+                  <span
+                    className={cn(
+                      "ml-1 px-2 py-0.5 rounded-full border",
+                      "text-micro font-semibold tracking-[0.18em] uppercase",
+                      active
+                        ? "bg-gold-500/10 text-gold-300 border-gold-500/14"
+                        : "bg-surface-900/35 text-surface-500 border-white/6"
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                )}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };

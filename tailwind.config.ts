@@ -82,41 +82,54 @@ const config: Config = {
           600: "#7c3aed",
         },
       },
+
+      /**
+       * Fonts now come from next/font via CSS variables set in layout.tsx.
+       * This avoids FOIT, improves rendering, and makes the UI feel "real".
+       */
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["JetBrains Mono", "Fira Code", "monospace"],
-        display: ["Inter", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
+
+      /**
+       * Tighten the typographic personality:
+       * - Space Grotesk as display font likes slightly tighter tracking
+       * - Reduce "too-bold" look that screams template
+       */
       fontSize: {
-        "d1": ["5rem", { lineHeight: "1.05", letterSpacing: "-0.03em", fontWeight: "900" }],
-        "d2": ["3.75rem", { lineHeight: "1.08", letterSpacing: "-0.025em", fontWeight: "900" }],
-        "d3": ["3rem", { lineHeight: "1.12", letterSpacing: "-0.02em", fontWeight: "800" }],
-        "d4": ["2.25rem", { lineHeight: "1.2", letterSpacing: "-0.015em", fontWeight: "800" }],
-        "h1": ["1.875rem", { lineHeight: "1.3", fontWeight: "700" }],
-        "h2": ["1.5rem", { lineHeight: "1.35", fontWeight: "700" }],
-        "h3": ["1.25rem", { lineHeight: "1.4", fontWeight: "600" }],
-        "b1": ["1.125rem", { lineHeight: "1.65" }],
-        "b2": ["1rem", { lineHeight: "1.65" }],
-        "b3": ["0.875rem", { lineHeight: "1.55" }],
-        "cap": ["0.75rem", { lineHeight: "1.5", fontWeight: "500" }],
-        "micro": ["0.6875rem", { lineHeight: "1.45", fontWeight: "600" }],
+        d1: ["5rem", { lineHeight: "1.02", letterSpacing: "-0.04em", fontWeight: "800" }],
+        d2: ["3.75rem", { lineHeight: "1.06", letterSpacing: "-0.035em", fontWeight: "800" }],
+        d3: ["3rem", { lineHeight: "1.12", letterSpacing: "-0.03em", fontWeight: "750" as any }],
+        d4: ["2.25rem", { lineHeight: "1.18", letterSpacing: "-0.02em", fontWeight: "750" as any }],
+        h1: ["1.875rem", { lineHeight: "1.28", fontWeight: "700" }],
+        h2: ["1.5rem", { lineHeight: "1.34", fontWeight: "650" as any }],
+        h3: ["1.25rem", { lineHeight: "1.42", fontWeight: "600" }],
+        b1: ["1.125rem", { lineHeight: "1.7" }],
+        b2: ["1rem", { lineHeight: "1.7" }],
+        b3: ["0.875rem", { lineHeight: "1.6" }],
+        cap: ["0.75rem", { lineHeight: "1.5", fontWeight: "550" as any, letterSpacing: "0.02em" }],
+        micro: ["0.6875rem", { lineHeight: "1.45", fontWeight: "650" as any, letterSpacing: "0.03em" }],
       },
+
       animation: {
         "fade-up": "fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
         "fade-down": "fadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
         "scale-up": "scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
         "slide-left": "slideLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
         "slide-right": "slideRight 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-        "float": "float 6s ease-in-out infinite",
+        float: "float 6s ease-in-out infinite",
         "float-slow": "float 10s ease-in-out infinite",
         "glow-pulse": "glowPulse 3s ease-in-out infinite",
-        "shimmer": "shimmer 2.5s linear infinite",
+        shimmer: "shimmer 2.5s linear infinite",
         "spin-slow": "spin 12s linear infinite",
         "gradient-shift": "gradientShift 8s ease infinite",
         "border-flow": "borderFlow 4s linear infinite",
-        "breathe": "breathe 4s ease-in-out infinite",
-        "orbit": "orbit 20s linear infinite",
+        breathe: "breathe 4s ease-in-out infinite",
+        orbit: "orbit 20s linear infinite",
       },
+
       keyframes: {
         fadeUp: {
           "0%": { opacity: "0", transform: "translateY(24px)" },
@@ -167,17 +180,31 @@ const config: Config = {
           "100%": { transform: "rotate(360deg) translateX(120px) rotate(-360deg)" },
         },
       },
+
+      /**
+       * Shadows were the #1 "AI generated" tell.
+       * These are more "material + cinematic" and less generic drop-shadow.
+       */
       boxShadow: {
-        "glow-gold": "0 0 32px -4px rgba(247, 201, 72, 0.25)",
-        "glow-gold-lg": "0 0 64px -8px rgba(247, 201, 72, 0.3)",
-        "glow-electric": "0 0 32px -4px rgba(0, 221, 212, 0.2)",
-        "glow-neon": "0 0 32px -4px rgba(0, 232, 94, 0.2)",
-        "glow-crimson": "0 0 32px -4px rgba(239, 68, 68, 0.2)",
-        "card": "0 1px 3px rgba(0,0,0,0.3), 0 8px 24px -4px rgba(0,0,0,0.4)",
-        "card-hover": "0 4px 12px rgba(0,0,0,0.4), 0 16px 40px -8px rgba(0,0,0,0.5)",
-        "elevated": "0 8px 32px -8px rgba(0,0,0,0.6)",
+        "glow-gold": "0 0 32px -6px rgba(247, 201, 72, 0.28)",
+        "glow-gold-lg": "0 0 72px -14px rgba(247, 201, 72, 0.34)",
+        "glow-electric": "0 0 32px -6px rgba(0, 221, 212, 0.22)",
+        "glow-neon": "0 0 32px -6px rgba(0, 232, 94, 0.22)",
+        "glow-crimson": "0 0 32px -6px rgba(239, 68, 68, 0.22)",
+
+        panel: "inset 0 1px 0 rgba(255,255,255,0.045), 0 0 0 1px rgba(255,255,255,0.02), 0 18px 60px rgba(0,0,0,0.45)",
+        "panel-hover": "inset 0 1px 0 rgba(255,255,255,0.055), 0 0 0 1px rgba(255,255,255,0.03), 0 24px 90px rgba(0,0,0,0.55)",
+
+        card: "inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 40px rgba(0,0,0,0.50)",
+        "card-hover": "inset 0 1px 0 rgba(255,255,255,0.05) inset, 0 22px 70px rgba(0,0,0,0.60)",
+        elevated: "0 30px 120px rgba(0,0,0,0.65)",
         "inner-light": "inset 0 1px 0 0 rgba(255,255,255,0.04)",
+
+        // Focus "aura" (used in globals.css input-base)
+        "focus-gold": "0 0 0 4px rgba(247, 201, 72, 0.10)",
+        "focus-crimson": "0 0 0 4px rgba(239, 68, 68, 0.10)",
       },
+
       backgroundImage: {
         "gradient-gold": "linear-gradient(135deg, #f7c948, #e5a820)",
         "gradient-electric": "linear-gradient(135deg, #00ddd4, #028f8c)",
@@ -186,9 +213,18 @@ const config: Config = {
         "gradient-azure": "linear-gradient(135deg, #60a5fa, #2563eb)",
         "gradient-violet": "linear-gradient(135deg, #a78bfa, #7c3aed)",
         "gradient-surface": "linear-gradient(180deg, #141825 0%, #0e1119 100%)",
-        "gradient-radial-gold": "radial-gradient(ellipse at center, rgba(247, 201, 72, 0.08) 0%, transparent 70%)",
-        "gradient-radial-electric": "radial-gradient(ellipse at center, rgba(0, 221, 212, 0.06) 0%, transparent 70%)",
-        "noise": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E\")",
+
+        "gradient-radial-gold":
+          "radial-gradient(ellipse at center, rgba(247, 201, 72, 0.08) 0%, transparent 70%)",
+        "gradient-radial-electric":
+          "radial-gradient(ellipse at center, rgba(0, 221, 212, 0.06) 0%, transparent 70%)",
+
+        // For later Phase 1B hero background (premium mesh, not "particles")
+        "mesh-void":
+          "radial-gradient(1000px 500px at 15% 15%, rgba(247, 201, 72, 0.07), transparent 55%), radial-gradient(900px 520px at 80% 25%, rgba(0, 221, 212, 0.06), transparent 60%), radial-gradient(900px 700px at 55% 85%, rgba(0, 232, 94, 0.04), transparent 60%)",
+
+        noise:
+          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E\")",
       },
     },
   },
