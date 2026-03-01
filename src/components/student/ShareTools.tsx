@@ -58,7 +58,7 @@ export const ShareTools: React.FC<Props> = ({ address }) => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card variant="highlight" padding="lg" className="h-full">
+        <Card variant="highlighted" padding="lg" className="h-full">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-brand-500/15 flex items-center justify-center text-brand-400">
               <LinkIcon className="w-5 h-5" />
@@ -99,7 +99,7 @@ export const ShareTools: React.FC<Props> = ({ address }) => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
       >
-        <Card variant="highlight" padding="lg" className="h-full">
+        <Card variant="highlighted" padding="lg" className="h-full">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-cyber-500/15 flex items-center justify-center text-cyber-400">
               <QrCode className="w-5 h-5" />

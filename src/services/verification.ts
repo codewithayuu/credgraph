@@ -62,12 +62,14 @@ export async function verifyWalletCredentials(
 
   const activeCredentials = verifiedCredentials.filter((c) => c.status === "active");
   const revokedCredentials = verifiedCredentials.filter((c) => c.status === "revoked");
+  const expiredCredentials = verifiedCredentials.filter((c) => typeof c.status === 'string' && c.status === "expired");
   const allIssuersVerified = verifiedCredentials.every((c) => c.issuerVerified);
 
   const summary: VerificationSummary = {
     totalCredentials: verifiedCredentials.length,
     activeCredentials: activeCredentials.length,
     revokedCredentials: revokedCredentials.length,
+    expiredCredentials: expiredCredentials.length,
     compositeCredentials: composites.length,
     allIssuersVerified,
   };

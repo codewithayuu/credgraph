@@ -1,0 +1,38 @@
+
+> credgraph@0.1.0 build
+> next build
+
+  Γû▓ Next.js 14.2.3
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+
+./src/components/student/ShareTools.tsx
+115:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/23) ...
+   Generating static pages (5/23) 
+
+Error occurred prerendering page "/api/verify/[address/]". Read more: https://nextjs.org/docs/messages/prerender-error
+
+TypeError: Cannot destructure property 'address' of 't' as it is undefined.
+    at rA (D:\hackathon\credgraph\.next\server\app\api\verify\[address\]\route.js:1:144570)
+    at D:\hackathon\credgraph\node_modules\next\dist\compiled\next-server\app-route.runtime.prod.js:6:34672
+    at D:\hackathon\credgraph\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (D:\hackathon\credgraph\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (D:\hackathon\credgraph\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (D:\hackathon\credgraph\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (D:\hackathon\credgraph\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at D:\hackathon\credgraph\node_modules\next\dist\server\lib\trace\tracer.js:122:103
+    at NoopContextManager.with (D:\hackathon\credgraph\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (D:\hackathon\credgraph\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+   Generating static pages (11/23) 
+   Generating static pages (17/23) 
+ Γ£ô Generating static pages (23/23)
+
+> Export encountered errors on following paths:
+	/api/verify/[address/]/route: /api/verify/[address/]

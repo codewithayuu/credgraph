@@ -94,20 +94,18 @@ export const TimelineView: React.FC<Props> = ({ address }) => {
               className="relative flex items-start gap-5 pl-12"
             >
               <div className="absolute left-[18px] top-3">
-                <div className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center ${
-                  isRevoked
+                <div className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center ${isRevoked
                     ? "bg-red-500/15 border-red-500/30"
                     : event.isComposite
-                    ? "bg-amber-500/15 border-amber-500/30"
-                    : "bg-brand-500/15 border-brand-500/30"
-                }`}>
-                  <div className={`w-2 h-2 rounded-full ${
-                    isRevoked ? "bg-red-400" : event.isComposite ? "bg-amber-400" : "bg-brand-400"
-                  }`} />
+                      ? "bg-amber-500/15 border-amber-500/30"
+                      : "bg-brand-500/15 border-brand-500/30"
+                  }`}>
+                  <div className={`w-2 h-2 rounded-full ${isRevoked ? "bg-red-400" : event.isComposite ? "bg-amber-400" : "bg-brand-400"
+                    }`} />
                 </div>
               </div>
 
-              <Card variant="glass" padding="md" className="flex-1">
+              <Card variant="elevated" padding="md" className="flex-1">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {isRevoked ? (
@@ -117,9 +115,8 @@ export const TimelineView: React.FC<Props> = ({ address }) => {
                     ) : (
                       <CheckCircle2 className="w-4 h-4 text-accent-400" />
                     )}
-                    <span className={`text-body-sm font-semibold ${
-                      isRevoked ? "text-red-300" : "text-dark-200"
-                    }`}>
+                    <span className={`text-body-sm font-semibold ${isRevoked ? "text-red-300" : "text-dark-200"
+                      }`}>
                       {isRevoked ? "Credential Revoked" : event.isComposite ? "Composite Earned" : "Credential Earned"}
                     </span>
                   </div>

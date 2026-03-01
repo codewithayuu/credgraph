@@ -32,7 +32,7 @@ export default function NotFound() {
         <h1 className="text-d2 font-display text-white mb-2 leading-none">404</h1>
         <p className="text-h2 font-display text-surface-200 mb-6">Graph Node Not Found</p>
         <p className="text-b1 text-surface-400 mb-10 max-w-sm mx-auto leading-relaxed">
-          The requested coordinate doesn't exist in the CredGraph protocol. Please check the URL or return home.
+          The requested coordinate doesn&apos;t exist in the CredGraph protocol. Please check the URL or return home.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

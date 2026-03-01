@@ -105,7 +105,7 @@ export function ApplicationForm() {
                 <div>
                     <h3 className={cn("text-h2 font-semibold", config.color)}>{config.label}</h3>
                     <p className="text-b3 text-surface-400 mt-1">
-                        Application for "{myApplication.institutionName}" submitted on{" "}
+                        Application for &quot;{myApplication.institutionName}&quot; submitted on{" "}
                         {new Date(myApplication.submittedAt * 1000).toLocaleDateString()}
                     </p>
                     {myApplication.reviewNote && (

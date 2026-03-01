@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MOCK_CREDENTIALS, MOCK_ISSUERS, MOCK_COMPOSITION_RULES } from "@/lib/mockData";
 
-export async function GET(
-    request: NextRequest,
-    { params }: { params: { address: string } }
-) {
-    const walletAddress = params.address;
+export const dynamic = 'force-dynamic';
 
-    if (!walletAddress) {
+export async function GET(
+    request: NextRequest
+) {
+    // Extract address from pathname avoiding prerender destructure issues
+    const pathParts = request.nextUrl.pathname.split('/');
+    const walletAddress = pathParts[pathParts.length - 1];
+
+    if (!walletAddress || walletAddress === '[address]') {
         return NextResponse.json(
             { success: false, error: "Wallet address is required" },
             { status: 400 }

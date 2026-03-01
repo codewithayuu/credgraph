@@ -38,8 +38,6 @@ function ClaimStepIndicator({
             {steps.map((s, i) => {
                 const isActive = i === currentIndex;
                 const isComplete = i < currentIndex;
-                const isFailed = step === "failed" && i === currentIndex;
-
                 return (
                     <React.Fragment key={s.id}>
                         <div className="flex items-center gap-2">
@@ -47,18 +45,13 @@ function ClaimStepIndicator({
                                 className={cn(
                                     "w-7 h-7 rounded-full flex items-center justify-center text-micro font-bold transition-all duration-300",
                                     isComplete && "bg-neon-500/20 text-neon-400 ring-1 ring-neon-500/30",
-                                    isActive && !isFailed && "bg-gold-500/20 text-gold-400 ring-1 ring-gold-500/30 animate-pulse",
-                                    isFailed && "bg-crimson-500/20 text-crimson-400 ring-1 ring-crimson-500/30",
+                                    isActive && "bg-gold-500/20 text-gold-400 ring-1 ring-gold-500/30 animate-pulse",
                                     !isComplete && !isActive && "bg-surface-800 text-surface-500 ring-1 ring-surface-700/50"
                                 )}
                             >
                                 {isComplete ? (
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                                         <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                ) : isFailed ? (
-                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                        <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                                     </svg>
                                 ) : (
                                     i + 1

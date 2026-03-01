@@ -50,7 +50,7 @@ export const ProgressTracker: React.FC<Props> = ({ address }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.15 }}
           >
-            <Card variant="gradient" padding="lg">
+            <Card variant="golden" padding="lg">
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
@@ -63,11 +63,11 @@ export const ProgressTracker: React.FC<Props> = ({ address }) => {
                 </div>
 
                 {item.isEligible ? (
-                  <Badge variant="success" size="lg" dot pulse>
+                  <Badge variant="neon" size="lg" dot pulse>
                     Complete
                   </Badge>
                 ) : (
-                  <Badge variant="warning" size="lg">
+                  <Badge variant="gold" size="lg">
                     {item.totalEarned}/{item.totalRequired}
                   </Badge>
                 )}
@@ -93,11 +93,10 @@ export const ProgressTracker: React.FC<Props> = ({ address }) => {
                   return (
                     <div
                       key={typeId}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${
-                        isEarned
-                          ? "bg-accent-500/5 border-accent-500/15"
-                          : "bg-dark-800/20 border-dark-700/20"
-                      }`}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-300 ${isEarned
+                        ? "bg-accent-500/5 border-accent-500/15"
+                        : "bg-dark-800/20 border-dark-700/20"
+                        }`}
                     >
                       {isEarned ? (
                         <CheckCircle2 className="w-5 h-5 text-accent-400 flex-shrink-0" />
@@ -108,7 +107,7 @@ export const ProgressTracker: React.FC<Props> = ({ address }) => {
                         {type?.name || "Unknown"}
                       </span>
                       {catConfig && (
-                        <Badge variant="info" size="sm">{catConfig.label}</Badge>
+                        <Badge variant="azure" size="sm">{catConfig.label}</Badge>
                       )}
                       <span className="text-caption font-mono text-dark-600">{typeId}</span>
                     </div>

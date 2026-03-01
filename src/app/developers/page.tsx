@@ -148,21 +148,21 @@ export default function DevelopersPage() {
                                         <div className="p-5 overflow-x-auto text-sm font-mono leading-relaxed">
                                             <span className="text-surface-300">{`{`}</span>
                                             <br />
-                                            <span className="text-neon-300">  "verified"</span><span className="text-surface-300">: </span><span className="text-electric-400">true</span><span className="text-surface-300">,</span>
+                                            <span className="text-neon-300">  &quot;verified&quot;</span><span className="text-surface-300">: </span><span className="text-electric-400">true</span><span className="text-surface-300">,</span>
                                             <br />
-                                            <span className="text-neon-300">  "status"</span><span className="text-surface-300">: </span><span className="text-gold-300">"active"</span><span className="text-surface-300">,</span>
+                                            <span className="text-neon-300">  &quot;status&quot;</span><span className="text-surface-300">: </span><span className="text-gold-300">&quot;active&quot;</span><span className="text-surface-300">,</span>
                                             <br />
-                                            <span className="text-neon-300">  "data"</span><span className="text-surface-300">: {`{`}</span>
+                                            <span className="text-neon-300">  &quot;data&quot;</span><span className="text-surface-300">: {`{`}</span>
                                             <br />
-                                            <span className="text-neon-300">    "credentialId"</span><span className="text-surface-300">: </span><span className="text-gold-300">"CRED-XYZ-789"</span><span className="text-surface-300">,</span>
+                                            <span className="text-neon-300">    &quot;credentialId&quot;</span><span className="text-surface-300">: </span><span className="text-gold-300">&quot;CRED-XYZ-789&quot;</span><span className="text-surface-300">,</span>
                                             <br />
-                                            <span className="text-neon-300">    "issuer"</span><span className="text-surface-300">: </span><span className="text-gold-300">"ISSUER_ALGO_ATLAS..."</span><span className="text-surface-300">,</span>
+                                            <span className="text-neon-300">    &quot;issuer&quot;</span><span className="text-surface-300">: </span><span className="text-gold-300">&quot;ISSUER_ALGO_ATLAS...&quot;</span><span className="text-surface-300">,</span>
                                             <br />
-                                            <span className="text-neon-300">    "recipient"</span><span className="text-surface-300">: </span><span className="text-gold-300">"STUDENT1ABC..."</span><span className="text-surface-300">,</span>
+                                            <span className="text-neon-300">    &quot;recipient&quot;</span><span className="text-surface-300">: </span><span className="text-gold-300">&quot;STUDENT1ABC...&quot;</span><span className="text-surface-300">,</span>
                                             <br />
-                                            <span className="text-neon-300">    "type"</span><span className="text-surface-300">: </span><span className="text-gold-300">"DSA Pattern Mastery"</span><span className="text-surface-300">,</span>
+                                            <span className="text-neon-300">    &quot;type&quot;</span><span className="text-surface-300">: </span><span className="text-gold-300">&quot;DSA Pattern Mastery&quot;</span><span className="text-surface-300">,</span>
                                             <br />
-                                            <span className="text-neon-300">    "txId"</span><span className="text-surface-300">: </span><span className="text-gold-300">"TX987654321..."</span>
+                                            <span className="text-neon-300">    &quot;txId&quot;</span><span className="text-surface-300">: </span><span className="text-gold-300">&quot;TX987654321...&quot;</span>
                                             <br />
                                             <span className="text-surface-300">  {`}`}</span>
                                             <br />
