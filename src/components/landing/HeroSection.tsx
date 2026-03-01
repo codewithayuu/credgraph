@@ -4,141 +4,109 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
-import { GlowOrb } from "@/components/ui/GlowOrb";
-import {
-  ArrowRight,
-  Shield,
-  Layers,
-  Search,
-  Hexagon,
-  Sparkles,
-  Zap,
-  ChevronRight,
-} from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden">
-      <GlowOrb color="brand" size="xl" className="top-[-200px] left-[-100px] opacity-40" />
-      <GlowOrb color="cyber" size="lg" className="bottom-[-100px] right-[-50px] opacity-30" />
-      <GlowOrb color="accent" size="md" className="top-[30%] right-[10%] opacity-20" />
+    <section className="relative min-h-[94vh] flex items-center overflow-hidden">
+      <div className="orb orb-gold w-[600px] h-[600px] top-[-200px] left-[-150px] opacity-50" />
+      <div className="orb orb-electric w-[400px] h-[400px] bottom-[-100px] right-[-100px] opacity-40" />
+      <div className="orb orb-neon w-[300px] h-[300px] top-[50%] right-[15%] opacity-20" />
 
-      <div className="absolute inset-0 grid-pattern opacity-60" />
+      <div className="absolute inset-0 grid-bg opacity-50" />
 
-      <div className="absolute top-20 left-[15%] w-px h-40 bg-gradient-to-b from-transparent via-brand-500/20 to-transparent" />
-      <div className="absolute top-40 right-[20%] w-px h-32 bg-gradient-to-b from-transparent via-cyber-500/20 to-transparent" />
+      <VerticalLines />
+      <FloatingShapes />
 
-      <FloatingElements />
-
-      <div className="relative z-10 section-container w-full">
+      <div className="relative z-10 section-wrapper w-full">
         <div className="max-w-5xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-6"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/8 border border-brand-500/15 backdrop-blur-sm">
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-accent-400 animate-pulse" />
-                <span className="text-caption font-semibold text-accent-400 uppercase tracking-wider">
-                  Live on Algorand Testnet
-                </span>
-              </div>
-              <div className="w-px h-3 bg-dark-600" />
-              <span className="text-caption font-medium text-dark-400">
-                Hackathon 2025
-              </span>
+
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-8">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-surface-900/60 border border-surface-700/40 backdrop-blur-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-neon-400 animate-breathe" />
+              <span className="text-cap text-neon-400 uppercase tracking-widest">Live on Algorand Testnet</span>
+              <div className="w-px h-3 bg-surface-700" />
+              <span className="text-cap text-surface-500">Hackathon 2025</span>
             </div>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-display-lg md:text-display-xl font-black text-white mb-6 text-balance leading-[1.05]"
+            className="text-d2 md:text-d1 text-white mb-7 text-balance"
           >
             Don&apos;t Trust the Resume.
             <br />
-            <span className="relative">
+            <span className="relative inline-block">
               Verify the Chain.
               <motion.span
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
-                className="absolute bottom-0 left-0 h-[3px] bg-gradient-to-r from-brand-400 via-cyber-400 to-accent-400 rounded-full"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.8, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-gold-400 to-electric-400 rounded-full origin-left"
               />
             </span>
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-body-lg md:text-heading-md text-dark-400 max-w-3xl mx-auto mb-10 text-balance leading-relaxed"
+            className="text-b1 md:text-h3 text-surface-400 max-w-3xl mx-auto mb-12 text-balance font-normal"
           >
             Issue composable, blockchain-verified academic credentials as NFTs on Algorand.
-            Students own their achievements. Employers verify in seconds. No middleman.
+            Students own their achievements. Employers verify in seconds.
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+            transition={{ duration: 0.7, delay: 0.35 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
           >
             <Link href="/issuer">
-              <Button
-                size="xl"
-                icon={<ArrowRight className="w-5 h-5" />}
-                iconPosition="right"
-                className="min-w-[220px] shadow-2xl shadow-brand-500/20"
-              >
+              <Button size="xl" iconRight={<ArrowRight className="w-5 h-5" />} className="min-w-[200px]">
                 Start Issuing
               </Button>
             </Link>
             <Link href="/verify">
-              <Button
-                variant="outline"
-                size="xl"
-                icon={<Search className="w-5 h-5" />}
-                className="min-w-[220px]"
-              >
-                Verify Credentials
+              <Button variant="outline" size="xl" icon={<Search className="w-5 h-5" />} className="min-w-[200px]">
+                Verify Now
               </Button>
             </Link>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto"
           >
             {[
               {
-                icon: <Shield className="w-5 h-5" />,
                 title: "Issuer-Verified",
                 desc: "On-chain registry of authorized institutions",
-                color: "from-brand-500/20 to-brand-600/5",
-                borderColor: "border-brand-500/15",
-                iconBg: "bg-brand-500/15 text-brand-400",
+                gradient: "from-gold-500/12 to-gold-600/4",
+                border: "border-gold-500/12",
+                iconGradient: "from-gold-500 to-gold-600",
+                iconPath: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
               },
               {
-                icon: <Layers className="w-5 h-5" />,
                 title: "Composable",
                 desc: "Micro-credentials combine into mastery paths",
-                color: "from-cyber-500/20 to-cyber-600/5",
-                borderColor: "border-cyber-500/15",
-                iconBg: "bg-cyber-500/15 text-cyber-400",
+                gradient: "from-electric-500/12 to-electric-600/4",
+                border: "border-electric-500/12",
+                iconGradient: "from-electric-500 to-electric-600",
+                iconPath: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
               },
               {
-                icon: <Zap className="w-5 h-5" />,
                 title: "Instant Verify",
                 desc: "One link. Three seconds. Zero trust needed.",
-                color: "from-accent-500/20 to-accent-600/5",
-                borderColor: "border-accent-500/15",
-                iconBg: "bg-accent-500/15 text-accent-400",
+                gradient: "from-neon-500/12 to-neon-600/4",
+                border: "border-neon-500/12",
+                iconGradient: "from-neon-500 to-neon-600",
+                iconPath: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
               },
             ].map((item, i) => (
               <motion.div
@@ -146,13 +114,16 @@ export const HeroSection: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 + i * 0.1 }}
-                className={`relative p-5 rounded-2xl bg-gradient-to-br ${item.color} border ${item.borderColor} backdrop-blur-sm`}
+                whileHover={{ y: -4 }}
+                className={`relative p-6 rounded-2xl bg-gradient-to-br ${item.gradient} border ${item.border} backdrop-blur-sm`}
               >
-                <div className={`w-10 h-10 rounded-xl ${item.iconBg} flex items-center justify-center mb-3`}>
-                  {item.icon}
+                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${item.iconGradient} flex items-center justify-center mb-4 shadow-lg`}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d={item.iconPath} />
+                  </svg>
                 </div>
-                <h3 className="text-body-md font-semibold text-white mb-1">{item.title}</h3>
-                <p className="text-body-sm text-dark-400">{item.desc}</p>
+                <h3 className="text-b2 font-bold text-white mb-1.5">{item.title}</h3>
+                <p className="text-b3 text-surface-400">{item.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -162,36 +133,32 @@ export const HeroSection: React.FC = () => {
   );
 };
 
-const FloatingElements: React.FC = () => (
+const VerticalLines: React.FC = () => (
+  <>
+    <div className="absolute top-24 left-[12%] w-px h-44 bg-gradient-to-b from-transparent via-gold-500/10 to-transparent" />
+    <div className="absolute top-40 right-[18%] w-px h-36 bg-gradient-to-b from-transparent via-electric-500/8 to-transparent" />
+    <div className="absolute bottom-32 left-[25%] w-px h-28 bg-gradient-to-b from-transparent via-gold-500/6 to-transparent" />
+  </>
+);
+
+const FloatingShapes: React.FC = () => (
   <>
     {[
-      { top: "15%", left: "8%", delay: 0, size: 6 },
-      { top: "25%", right: "12%", delay: 1.5, size: 4 },
-      { top: "60%", left: "5%", delay: 3, size: 5 },
-      { top: "70%", right: "8%", delay: 2, size: 7 },
-      { top: "40%", left: "15%", delay: 4, size: 3 },
+      { top: "12%", left: "6%", delay: 0, s: 24 },
+      { top: "22%", right: "10%", delay: 2, s: 18 },
+      { top: "65%", left: "4%", delay: 4, s: 20 },
+      { top: "75%", right: "6%", delay: 1, s: 28 },
     ].map((el, i) => (
       <motion.div
         key={i}
-        animate={{
-          y: [0, -15, 0],
-          rotate: [0, 5, -5, 0],
-          opacity: [0.15, 0.3, 0.15],
-        }}
-        transition={{
-          duration: 6 + i,
-          repeat: Infinity,
-          delay: el.delay,
-          ease: "easeInOut",
-        }}
+        animate={{ y: [0, -12, 0], opacity: [0.06, 0.12, 0.06] }}
+        transition={{ duration: 7 + i * 2, repeat: Infinity, delay: el.delay, ease: "easeInOut" }}
         className="absolute pointer-events-none"
         style={{ top: el.top, left: el.left, right: (el as any).right }}
       >
-        <Hexagon
-          className="text-brand-500/10"
-          style={{ width: el.size * 8, height: el.size * 8 }}
-          strokeWidth={1}
-        />
+        <svg width={el.s} height={el.s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gold-400">
+          <path d="M12 2L22 8.5V15.5L12 22L2 15.5V8.5L12 2Z" />
+        </svg>
       </motion.div>
     ))}
   </>
