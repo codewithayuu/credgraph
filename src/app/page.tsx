@@ -77,7 +77,7 @@ export default function DemoPortalPage() {
           </Link>
 
           {/* Card 3: Verifier */}
-          <Link href="/verify/ALGO_DEMO_WALLET_123" className="block group">
+          <Link href="/verify/ALGORAND CHAIN VERIFICATION" className="block group">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
