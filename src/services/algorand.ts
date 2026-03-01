@@ -95,8 +95,8 @@ export function buildAssetTransferTxn(
   params: algosdk.SuggestedParams
 ): algosdk.Transaction {
   return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-    from: sender,
-    to: receiver,
+    sender: sender,
+    receiver: receiver,
     assetIndex: assetId,
     amount: amount,
     suggestedParams: params,
@@ -109,8 +109,8 @@ export function buildOptInTxn(
   params: algosdk.SuggestedParams
 ): algosdk.Transaction {
   return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-    from: sender,
-    to: sender,
+    sender: sender,
+    receiver: sender,
     assetIndex: assetId,
     amount: 0,
     suggestedParams: params,
@@ -124,7 +124,8 @@ export function groupTransactions(txns: algosdk.Transaction[]): algosdk.Transact
 
 export async function submitSignedTransactions(signedTxns: Uint8Array[]) {
   const client = getAlgodClient();
-  const { txId } = await client.sendRawTransaction(signedTxns).do();
+  const response = await client.sendRawTransaction(signedTxns).do();
+  const txId = response.txId;
   const result = await algosdk.waitForConfirmation(client, txId, 4);
   return { txId, ...result };
 }

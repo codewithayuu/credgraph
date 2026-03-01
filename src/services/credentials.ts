@@ -76,13 +76,14 @@ export async function issueCredentialOnChain(
     const signedTxns = await peraWallet.signTransaction([[{ txn: createAsaTxn }]]);
 
     const client = getAlgodClient();
-    const { txId } = await client.sendRawTransaction(signedTxns[0]).do();
+    const response = await client.sendRawTransaction(signedTxns[0]).do();
+    const txId = response.txId;
 
     const confirmedTxn = await import("algosdk").then((sdk) =>
       sdk.default.waitForConfirmation(client, txId, 4)
     );
 
-    const asaId = confirmedTxn["asset-index"];
+    const asaId = confirmedTxn.assetIndex;
 
     return {
       success: true,
